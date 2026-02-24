@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מדריך פרסום BetIQ ב-GitHub Pages</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080c14;--card:#141b2d;--border:#1e2d4a;--accent:#00d4ff;--accent2:#ff6b35;--green:#00e676;--yellow:#ffd740;--text:#e8eaf6;--muted:#5c6b8a;--font:'Heebo',sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.7}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.025) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+.container{max-width:760px;margin:0 auto;padding:3rem 1.5rem;position:relative;z-index:1}
+h1{font-size:2.2rem;font-weight:900;background:linear-gradient(135deg,#fff,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.4rem}
+.subtitle{color:var(--muted);font-size:1rem;margin-bottom:3rem}
+.step{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.8rem;margin-bottom:1.5rem;position:relative;overflow:hidden;transition:border-color .2s}
+.step:hover{border-color:rgba(0,212,255,.3)}
+.step::before{content:'';position:absolute;top:0;right:0;width:3px;height:100%;background:var(--accent)}
+.step:nth-child(even)::before{background:var(--accent2)}
+.step-num{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#0077ff);color:#fff;font-weight:900;font-size:.9rem;margin-bottom:.8rem}
+.step-title{font-size:1.2rem;font-weight:700;margin-bottom:.8rem;color:var(--text)}
+.step-desc{color:var(--muted);font-size:.92rem;margin-bottom:1rem;line-height:1.7}
+.code-block{background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem 1.2rem;font-family:monospace;font-size:.88rem;color:#7dd3fc;position:relative;margin:.8rem 0;overflow-x:auto;direction:ltr;text-align:left}
+.copy-btn{position:absolute;top:.6rem;left:.6rem;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);border-radius:6px;padding:.2rem .6rem;color:var(--accent);font-size:.72rem;cursor:pointer;font-family:var(--font);transition:all .2s}
+.copy-btn:hover{background:rgba(0,212,255,.2)}
+.copy-btn.copied{background:rgba(0,230,118,.1);border-color:var(--green);color:var(--green)}
+.tip{background:rgba(255,215,64,.05);border:1px solid rgba(255,215,64,.2);border-radius:10px;padding:.8rem 1rem;margin:.8rem 0;font-size:.85rem;color:var(--yellow);display:flex;gap:.6rem;align-items:flex-start}
+.success-box{background:rgba(0,230,118,.06);border:1px solid rgba(0,230,118,.25);border-radius:10px;padding:.9rem 1.1rem;margin:.8rem 0;font-size:.88rem;color:var(--green);display:flex;gap:.6rem;align-items:flex-start}
+.img-placeholder{background:#0a0f1a;border:1px dashed var(--border);border-radius:10px;padding:1.5rem;text-align:center;color:var(--muted);font-size:.82rem;margin:.8rem 0}
+.tag{display:inline-block;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);border-radius:6px;padding:.1rem .6rem;font-size:.75rem;color:var(--accent);font-weight:600;margin:0 .2rem}
+.api-section{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.8rem;margin-bottom:1.5rem}
+.api-section-title{font-size:1.3rem;font-weight:700;margin-bottom:1.2rem;display:flex;align-items:center;gap:.6rem}
+.api-card{background:#0a0f1a;border:1px solid var(--border);border-radius:12px;padding:1.2rem;margin-bottom:.8rem}
+.api-name{font-weight:700;font-size:1rem;margin-bottom:.3rem}
+.api-url{color:var(--accent);font-size:.85rem;margin-bottom:.5rem}
+.api-url a{color:var(--accent);text-decoration:none}
+.api-url a:hover{text-decoration:underline}
+.api-desc{color:var(--muted);font-size:.83rem;line-height:1.55}
+.badge{display:inline-block;padding:.15rem .6rem;border-radius:20px;font-size:.68rem;font-weight:700;margin-right:.4rem}
+.badge.free{background:rgba(0,230,118,.15);color:var(--green);border:1px solid rgba(0,230,118,.3)}
+.badge.paid{background:rgba(255,107,53,.12);color:var(--accent2);border:1px solid rgba(255,107,53,.25)}
+.steps-nav{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:2rem}
+.nav-pill{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:.35rem .9rem;font-size:.8rem;color:var(--muted);cursor:pointer;transition:all .2s;text-decoration:none}
+.nav-pill:hover{border-color:var(--accent);color:var(--accent)}
+.divider{height:1px;background:linear-gradient(90deg,var(--accent),transparent);margin:2.5rem 0}
+h2{font-size:1.6rem;font-weight:800;margin-bottom:1.5rem;color:var(--text)}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🚀 פרסום BetIQ ב-GitHub Pages</h1>
+  <div class="subtitle">מדריך שלב-אחר-שלב · 10 דקות · חינמי לגמרי</div>
+
+  <div class="steps-nav">
+    <a class="nav-pill" href="#step1">1. GitHub</a>
+    <a class="nav-pill" href="#step2">2. העלאת קובץ</a>
+    <a class="nav-pill" href="#step3">3. הפעלת Pages</a>
+    <a class="nav-pill" href="#step4">4. URL חי!</a>
+    <a class="nav-pill" href="#apis">5. API Keys</a>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="step" id="step1">
+    <div class="step-num">1</div>
+    <div class="step-title">יצירת חשבון GitHub (אם אין לך)</div>
+    <div class="step-desc">
+      GitHub הוא שירות חינמי לאחסון קוד. נשתמש בו כדי לאחסן ולהפיץ את האתר.
+    </div>
+    <div class="tip">💡 אם יש לך כבר חשבון GitHub — דלג לשלב 2</div>
+    <ol style="color:var(--muted);font-size:.9rem;padding-right:1.2rem;line-height:2">
+      <li>גש לאתר <span class="tag">github.com</span></li>
+      <li>לחץ <strong style="color:var(--text)">Sign up</strong> ומלא אימייל, שם משתמש וסיסמה</li>
+      <li>אמת את האימייל שלך</li>
+    </ol>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step" id="step2">
+    <div class="step-num">2</div>
+    <div class="step-title">יצירת Repository חדש</div>
+    <div class="step-desc">Repository הוא כמו תיקייה לפרויקט שלך ב-GitHub.</div>
+    <ol style="color:var(--muted);font-size:.9rem;padding-right:1.2rem;line-height:2.2">
+      <li>לחץ על <span class="tag">+</span> בפינה הימנית העליונה → <strong style="color:var(--text)">New repository</strong></li>
+      <li>בשדה <strong style="color:var(--text)">Repository name</strong> הכנס: <div class="code-block">betiq-pro<button class="copy-btn" onclick="copyCode(this,'betiq-pro')">העתק</button></div></li>
+      <li>בחר <strong style="color:var(--text)">Public</strong> (חייב להיות Public לשימוש ב-Pages חינמי)</li>
+      <li>סמן ✅ <strong style="color:var(--text)">Add a README file</strong></li>
+      <li>לחץ <strong style="color:var(--text)">Create repository</strong></li>
+    </ol>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step" id="step3">
+    <div class="step-num">3</div>
+    <div class="step-title">העלאת קובץ האתר</div>
+    <div class="step-desc">כעת נעלה את קובץ <strong>betiq-pro.html</strong> שהורדת.</div>
+    <ol style="color:var(--muted);font-size:.9rem;padding-right:1.2rem;line-height:2.2">
+      <li>בתוך ה-Repository לחץ על <span class="tag">Add file</span> → <strong style="color:var(--text)">Upload files</strong></li>
+      <li>גרור את הקובץ <strong style="color:var(--text)">betiq-pro.html</strong> לאזור ה-Upload</li>
+      <li><strong style="color:var(--accent)">חשוב:</strong> שנה את שם הקובץ ל-<div class="code-block">index.html<button class="copy-btn" onclick="copyCode(this,'index.html')">העתק</button></div></li>
+      <li>גלול למטה ולחץ <strong style="color:var(--text)">Commit changes</strong></li>
+    </ol>
+    <div class="tip">💡 שם index.html חשוב — זה שם הקובץ הראשי שGitHub Pages טוען אוטומטית</div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="step" id="step4">
+    <div class="step-num">4</div>
+    <div class="step-title">הפעלת GitHub Pages</div>
+    <div class="step-desc">עכשיו נפעיל את שירות האחסון החינמי.</div>
+    <ol style="color:var(--muted);font-size:.9rem;padding-right:1.2rem;line-height:2.2">
+      <li>לחץ על <span class="tag">Settings</span> (גלגל שיניים) בתפריט העליון של ה-Repository</li>
+      <li>בתפריט הצדדי, לחץ <strong style="color:var(--text)">Pages</strong></li>
+      <li>תחת <strong style="color:var(--text)">Branch</strong> בחר <span class="tag">main</span> ולחץ <strong style="color:var(--text)">Save</strong></li>
+      <li>המתן כ-2 דקות</li>
+    </ol>
+    <div class="success-box">
+      🎉 לאחר כ-2 דקות, הדף יתרענן ותראה: <br>
+      <strong>"Your site is live at https://USERNAME.github.io/betiq-pro"</strong>
+    </div>
+    <div class="tip">💡 ה-URL שלך יהיה: <strong style="color:var(--accent)">https://[שם-משתמש-שלך].github.io/betiq-pro</strong></div>
+  </div>
+
+  <!-- STEP 5 -->
+  <div class="step" id="step5">
+    <div class="step-num">5</div>
+    <div class="step-title">עדכון האתר בעתיד</div>
+    <div class="step-desc">אם תרצה לעדכן את האתר (גרסה חדשה מהצ'אט):</div>
+    <ol style="color:var(--muted);font-size:.9rem;padding-right:1.2rem;line-height:2.2">
+      <li>עבור ל-Repository שלך</li>
+      <li>לחץ על הקובץ <span class="tag">index.html</span></li>
+      <li>לחץ על אייקון העיפרון ✏️ (Edit)</li>
+      <li>מחק הכל והדבק את הקוד החדש</li>
+      <li>לחץ <strong style="color:var(--text)">Commit changes</strong></li>
+      <li>האתר יתעדכן אוטומטית תוך כדקה!</li>
+    </ol>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- APIs SECTION -->
+  <h2 id="apis">🔑 מדריך API Keys</h2>
+
+  <!-- Odds API -->
+  <div class="api-section">
+    <div class="api-section-title">🎲 The Odds API — אודס חי בזמן אמת</div>
+
+    <div class="api-card">
+      <div class="api-name"><span class="badge free">חינמי</span> The Odds API</div>
+      <div class="api-url"><a href="https://the-odds-api.com" target="_blank">🔗 the-odds-api.com</a></div>
+      <div class="api-desc">
+        הפלן החינמי מאפשר <strong style="color:var(--text)">500 קריאות API בחודש</strong> — מספיק לשימוש אישי יומי.
+        מכסה יותר מ-40 ספורטים כולל פרמיר ליג, NBA, לה ליגה ועוד.
+        מחיר ספקים: bet365, DraftKings, Unibet, Pinnacle ועוד.
+      </div>
+    </div>
+
+    <ol style="color:var(--muted);font-size:.9rem;padding-right:1.2rem;line-height:2.2;margin-top:.5rem">
+      <li>גש ל-<span class="tag">the-odds-api.com</span> ולחץ <strong style="color:var(--text)">Get API Key</strong></li>
+      <li>הירשם עם אימייל (חינמי, ללא כרטיס אשראי)</li>
+      <li>לאחר אימות תקבל מפתח בצורה כזו:<div class="code-block">abc123def456ghi789jkl012mno345pq<button class="copy-btn" onclick="copyCode(this,'abc123def456ghi789jkl012mno345pq')">דוגמה</button></div></li>
+      <li>העתק את המפתח והכנס אותו ב-BetIQ בשלב ההגדרה</li>
+    </ol>
+
+    <div class="tip">💡 טיפ חיסכון: האתר שומר את האודס במטמון (cache) — לא כל לחיצה על רענן צורכת קריאה</div>
+  </div>
+
+  <!-- Sports Data -->
+  <div class="api-section">
+    <div class="api-section-title">📊 API-Sports — נתוני משחקים ותוצאות</div>
+
+    <div class="api-card">
+      <div class="api-name"><span class="badge free">חינמי חלקי</span> API-Football / API-Basketball</div>
+      <div class="api-url"><a href="https://www.api-football.com" target="_blank">🔗 api-football.com</a> &nbsp;·&nbsp; <a href="https://www.api-basketball.com" target="_blank">api-basketball.com</a></div>
+      <div class="api-desc">
+        נתוני סטטיסטיקות, תוצאות, דירוגים, הרכבים ופציעות. הפלן החינמי: <strong style="color:var(--text)">100 קריאות ביום</strong>.
+        מכסה יותר מ-900 ליגות כולל ליגת העל הישראלית, NBA, EuroLeague ועוד.
+      </div>
+    </div>
+
+    <ol style="color:var(--muted);font-size:.9rem;padding-right:1.2rem;line-height:2.2;margin-top:.5rem">
+      <li>גש לאתר ולחץ <strong style="color:var(--text)">Sign Up Free</strong></li>
+      <li>הירשם דרך RapidAPI (פלטפורמה אחידה)</li>
+      <li>בחר את ה-API הרצוי (Football / Basketball)</li>
+      <li>לחץ <strong style="color:var(--text)">Subscribe to Test</strong> → מקבל 100 קריאות/יום חינם</li>
+      <li>ה-Key יופיע תחת <span class="tag">X-RapidAPI-Key</span> בדוגמאות הקוד</li>
+    </ol>
+  </div>
+
+  <!-- Claude API -->
+  <div class="api-section">
+    <div class="api-section-title">🤖 Anthropic (Claude) — ה-AI שמנתח וממליץ</div>
+
+    <div class="api-card">
+      <div class="api-name"><span class="badge free">$5 קרדיט חינמי</span> Claude API</div>
+      <div class="api-url"><a href="https://console.anthropic.com" target="_blank">🔗 console.anthropic.com</a></div>
+      <div class="api-desc">
+        ה-AI שמנתח את האודס ונותן המלצות מפורטות. עלות: כ-<strong style="color:var(--text)">$0.003 לקריאה</strong> (3 אגורות).
+        בחשבון חדש מקבלים $5 קרדיט חינמי — מספיק ל-1,500+ ניתוחים!
+      </div>
+    </div>
+
+    <ol style="color:var(--muted);font-size:.9rem;padding-right:1.2rem;line-height:2.2;margin-top:.5rem">
+      <li>גש ל-<span class="tag">console.anthropic.com</span></li>
+      <li>לחץ <strong style="color:var(--text)">Sign Up</strong> עם אימייל</li>
+      <li>אמת מספר טלפון (מקבלים $5 קרדיט חינמי)</li>
+      <li>בתפריט הצדדי: <strong style="color:var(--text)">API Keys</strong> → <strong style="color:var(--text)">Create Key</strong></li>
+      <li>המפתח יתחיל ב:<div class="code-block">sk-ant-api03-...<button class="copy-btn" onclick="copyCode(this,'sk-ant-api03-...')">דוגמה</button></div></li>
+      <li>שמור אותו מיד! הוא מוצג פעם אחת בלבד.</li>
+    </ol>
+
+    <div class="tip">⚠️ אל תשתף את המפתח עם אף אחד. הוא נשמר רק אצלך בדפדפן ולא עובר לשום שרת.</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SUMMARY -->
+  <div class="step" style="border-color:rgba(0,230,118,.3)">
+    <div class="success-box" style="margin:0">
+      <div>
+        <strong style="font-size:1rem">✅ סיכום — מה צריך לעשות:</strong><br><br>
+        <strong>1.</strong> צור חשבון GitHub ו-Repository בשם <span class="tag">betiq-pro</span><br>
+        <strong>2.</strong> העלה את קובץ <span class="tag">betiq-pro.html</span> כ-<span class="tag">index.html</span><br>
+        <strong>3.</strong> הפעל GitHub Pages → מקבל URL חי<br>
+        <strong>4.</strong> צור חשבון ב-<span class="tag">the-odds-api.com</span> (חינמי)<br>
+        <strong>5.</strong> צור חשבון ב-<span class="tag">console.anthropic.com</span> ($5 חינמי)<br>
+        <strong>6.</strong> פתח את האתר החי והכנס את המפתחות → נתונים אמיתיים! 🎉
+      </div>
+    </div>
+  </div>
+
+</div>
+<script>
+function copyCode(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ הועתק!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'העתק'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+</script>
+</body>
+</html>
