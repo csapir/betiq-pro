@@ -3,29 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SportIQ Pro — Analysis & Data Hub</title>
+    <title>SportIQ Pro — Analysis & Live Data</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Heebo:wght@300;400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
-
-<div id="setup-screen" class="modal">
-    <div class="setup-box">
-        <h2 class="logo">SPORT<span>IQ</span></h2>
-        <p>מערכת איסוף נתונים וניתוח AI</p>
-        <input type="password" id="oddsApiKey" placeholder="The Odds API Key">
-        <input type="password" id="anthropicKey" placeholder="Claude AI API Key">
-        <button class="primary-btn" onclick="app.start()">הפעל מערכת אנליטית</button>
-        <button class="secondary-btn" onclick="app.startDemo()">המשך במצב דמו (נתוני דוגמה)</button>
-    </div>
-</div>
+<body onload="app.init()">
 
 <header>
     <div class="logo">SPORT<span>IQ</span></div>
     <nav>
         <button onclick="ui.showSection('dashboard')" class="nav-link active">מרכז נתונים</button>
-        <button onclick="ui.showSection('alerts')" class="nav-link">🔔 התראות חמות</button>
+        <button onclick="ui.showSection('rankings')" class="nav-link">דירוגי כוח</button>
     </nav>
     <div class="live-status"><span class="dot"></span> LIVE DATA FEED</div>
 </header>
@@ -45,19 +34,19 @@
                 <span class="value">81.4%</span>
             </div>
             <div class="stat-card">
-                <span class="label">📊 אירועים בבדיקה</span>
+                <span class="label">📊 אירועים פעילים</span>
                 <span id="active-events" class="value">0</span>
             </div>
             <div class="stat-card">
                 <span class="label">📈 מומנטום ליגה</span>
-                <span id="league-momentum" class="value" style="color:var(--green)">חיובי</span>
+                <span class="value" style="color:var(--green)">חיובי</span>
             </div>
         </div>
 
         <div class="main-grid">
             <div class="panel">
                 <div class="panel-header">
-                    <h3>🏟️ לוח משחקים והסתברויות</h3>
+                    <h3>🏟️ משחקים וניתוח הסתברויות</h3>
                     <button class="refresh-btn" onclick="app.loadData()">🔄 רענן</button>
                 </div>
                 <div id="matches-container"></div>
@@ -65,7 +54,7 @@
 
             <div class="panel">
                 <div class="panel-header">
-                    <h3>🔍 ניתוח מעמיק וגרפים</h3>
+                    <h3>🔍 ניתוח מעמיק</h3>
                 </div>
                 <div id="detail-view">
                     <div id="analysis-content" style="display:none;">
@@ -74,7 +63,7 @@
                         </div>
                         <div class="micro-stats" id="micro-stats-content"></div>
                     </div>
-                    <p id="placeholder-text" class="muted">בחר משחק כדי לנתח נתונים מתקדמים</p>
+                    <p id="placeholder-text" class="muted">בחר משחק כדי להציג גרפים, קרנות ונתוני חוץ/בית</p>
                 </div>
             </div>
         </div>
