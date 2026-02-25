@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SportIQ Ultra — Live Feed</title>
+    <title>SportIQ Ultra — Multi-Sport Live</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Heebo:wght@100;400;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -15,7 +15,6 @@
             <div class="logo-area"><div class="logo">S<span>IQ</span></div></div>
             <nav class="side-nav">
                 <button onclick="ui.showSection('dashboard')" class="nav-item active">📊</button>
-                <button onclick="ui.showSection('live')" class="nav-item">📡</button>
             </nav>
         </aside>
 
@@ -29,20 +28,21 @@
 
             <section id="dashboard" class="content-page active">
                 <div class="welcome-header">
-                    <h1>משחקי <span>היום</span></h1>
+                    <h1>נתוני <span>זמן אמת</span></h1>
                     <div class="filter-pills">
-                        <button id="btn-soccer" class="pill active">Soccer (Live API)</button>
+                        <button id="btn-soccer" onclick="logic.changeSport('soccer')" class="pill active">⚽ Soccer</button>
+                        <button id="btn-basketball" onclick="logic.changeSport('basketball')" class="pill">🏀 Basketball (NBA)</button>
                     </div>
                 </div>
 
                 <div class="dashboard-grid">
                     <div class="list-panel">
                         <div class="panel-head">
-                            <h3>לוח שידורים חי</h3>
-                            <button class="sync-btn" onclick="app.fetchLiveSoccer()">SYNC LIVE</button>
+                            <h3 id="list-title">משחקי כדורגל פעילים</h3>
+                            <button class="sync-btn" onclick="app.fetchData()">SYNC LIVE</button>
                         </div>
                         <div id="matches-container" class="scroll-list">
-                            <p class="muted">ממתין לסנכרון נתונים...</p>
+                            <p class="muted">לחץ על SYNC לטעינה...</p>
                         </div>
                     </div>
 
@@ -58,8 +58,8 @@
                             </div>
                         </div>
                         <div id="placeholder-text" class="empty-state">
-                            <div class="icon">📡</div>
-                            <p>לחץ על SYNC כדי למשוך משחקים חיים מהעולם</p>
+                            <div class="icon">🏀</div>
+                            <p>המערכת מוכנה למשיכת נתוני NBA וכדורגל עולמי</p>
                         </div>
                     </div>
                 </div>
