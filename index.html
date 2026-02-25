@@ -3,73 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SportIQ Pro — Analysis & Live Data</title>
+    <title>SportIQ Ultra — Professional Analytics</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Heebo:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Heebo:wght@100;400;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body onload="app.init()">
 
-<header>
-    <div class="logo">SPORT<span>IQ</span></div>
-    <nav>
-        <button onclick="ui.showSection('dashboard')" class="nav-link active">מרכז נתונים</button>
-        <button onclick="ui.showSection('rankings')" class="nav-link">דירוגי כוח</button>
-    </nav>
-    <div class="live-status"><span class="dot"></span> LIVE DATA FEED</div>
-</header>
-
-<main>
-    <section id="dashboard" class="page active">
-        <div class="filter-strip">
-            <button id="btn-soccer" onclick="logic.filterSport('soccer')" class="sport-tab active">⚽ כדורגל</button>
-            <button id="btn-basketball" onclick="logic.filterSport('basketball')" class="sport-tab">🏀 כדורסל</button>
-        </div>
-
-        <div id="quick-alerts" class="alerts-container"></div>
-
-        <div class="stats-strip">
-            <div class="stat-card">
-                <span class="label">🎯 דיוק מודל AI</span>
-                <span class="value">81.4%</span>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo-area">
+                <div class="logo">S<span>IQ</span></div>
             </div>
-            <div class="stat-card">
-                <span class="label">📊 אירועים פעילים</span>
-                <span id="active-events" class="value">0</span>
-            </div>
-            <div class="stat-card">
-                <span class="label">📈 מומנטום ליגה</span>
-                <span class="value" style="color:var(--green)">חיובי</span>
-            </div>
-        </div>
+            <nav class="side-nav">
+                <button onclick="ui.showSection('dashboard')" class="nav-item active" title="דאשבורד">📊</button>
+                <button onclick="ui.showSection('live')" class="nav-item" title="משחקים חיים">📡</button>
+                <button onclick="ui.showSection('settings')" class="nav-item" title="הגדרות">⚙️</button>
+            </nav>
+        </aside>
 
-        <div class="main-grid">
-            <div class="panel">
-                <div class="panel-header">
-                    <h3>🏟️ משחקים וניתוח הסתברויות</h3>
-                    <button class="refresh-btn" onclick="app.loadData()">🔄 רענן</button>
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="search-box">
+                    <input type="text" placeholder="חיפוש קבוצה או ליגה...">
                 </div>
-                <div id="matches-container"></div>
-            </div>
-
-            <div class="panel">
-                <div class="panel-header">
-                    <h3>🔍 ניתוח מעמיק</h3>
+                <div class="user-status">
+                    <span class="api-badge">FREE TIER</span>
+                    <div class="connection-status">CONNECTED</div>
                 </div>
-                <div id="detail-view">
-                    <div id="analysis-content" style="display:none;">
-                        <div class="chart-container">
-                            <canvas id="matchChart"></canvas>
-                        </div>
-                        <div class="micro-stats" id="micro-stats-content"></div>
+            </header>
+
+            <section id="dashboard" class="content-page active">
+                <div class="welcome-header">
+                    <h1>ניתוח נתונים <span>זמן אמת</span></h1>
+                    <div class="filter-pills">
+                        <button id="btn-soccer" onclick="logic.filterSport('soccer')" class="pill active">Soccer</button>
+                        <button id="btn-basketball" onclick="logic.filterSport('basketball')" class="pill">Basketball</button>
                     </div>
-                    <p id="placeholder-text" class="muted">בחר משחק כדי להציג גרפים, קרנות ונתוני חוץ/בית</p>
                 </div>
-            </div>
-        </div>
-    </section>
-</main>
 
-<script src="app.js"></script>
+                <div class="dashboard-grid">
+                    <div class="list-panel">
+                        <div class="panel-head">
+                            <h3>משחקים קרובים</h3>
+                            <button class="sync-btn" onclick="app.loadData()">SYNC</button>
+                        </div>
+                        <div id="matches-container" class="scroll-list"></div>
+                    </div>
+
+                    <div class="analysis-panel">
+                        <div id="analysis-content" class="glass-card" style="display:none;">
+                            <div class="card-header">
+                                <h2 id="selected-match-title">Real Madrid vs Barcelona</h2>
+                                <span class="ai-label">AI PREDICTION: HOME WIN</span>
+                            </div>
+                            
+                            <div class="stats-viz">
+                                <div class="chart-wrapper">
+                                    <canvas id="matchChart"></canvas>
+                                </div>
+                                <div class="stats-summary" id="micro-stats-content"></div>
+                            </div>
+
+                            <div class="prediction-box">
+                                <div class="pred-item">
+                                    <span>הסתברות לניצחון</span>
+                                    <div class="progress-container"><div id="win-bar" class="progress-fill"></div></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="placeholder-text" class="empty-state">
+                            <div class="icon">📈</div>
+                            <p>בחר משחק כדי להפעיל את מנוע הניתוח</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
 </body>
 </html>
