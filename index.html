@@ -1,64 +1,64 @@
-<!DOCTYPE html>
-<html lang="he" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SportIQ Pro — Analysis & Data</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Heebo:wght@300;400;700&display=swap" rel="stylesheet">
-</head>
-<body>
+const app = {
+    config: {
+        oddsKey: '',
+        aiKey: '',
+        isDemo: false
+    },
 
-<div id="setup-screen" class="modal">
-    <div class="setup-box">
-        <h2>🔑 הגדרת מסד נתונים</h2>
-        <input type="password" id="oddsApiKey" placeholder="The Odds API Key">
-        <input type="password" id="anthropicKey" placeholder="Claude API Key">
-        <button class="primary-btn" onclick="app.start()">הפעל מערכת</button>
-        <button class="secondary-btn" onclick="app.startDemo()">מצב תצוגה (Demo)</button>
-    </div>
-</div>
+    start() {
+        this.config.oddsKey = document.getElementById('oddsApiKey').value;
+        this.config.aiKey = document.getElementById('anthropicKey').value;
+        document.getElementById('setup-screen').style.display = 'none';
+        this.loadData();
+    },
 
-<header>
-    <div class="logo">SPORT<span>IQ</span></div>
-    <nav>
-        <button onclick="ui.showSection('dashboard')" class="nav-link active">דשבורד</button>
-        <button onclick="ui.showSection('tactical')" class="nav-link">ניתוח טקטי</button>
-    </nav>
-</header>
+    startDemo() {
+        this.config.isDemo = true;
+        document.getElementById('setup-screen').style.display = 'none';
+        this.loadData();
+    },
 
-<main>
-    <section id="dashboard" class="page active">
-        <div class="stats-grid">
-            <div class="stat-card">
-                <span class="label">דיוק מודל AI</span>
-                <span class="value">74.2%</span>
-            </div>
-            <div class="stat-card">
-                <span class="label">משחקים בניתוח</span>
-                <span id="match-count" class="value">0</span>
-            </div>
-        </div>
+    async loadData() {
+        // כאן תבוא הפונקציה שמושכת נתונים מה-API
+        console.log("Loading sports data...");
+        ui.renderMatches(demoData);
+    }
+};
 
-        <div class="main-grid">
-            <div class="panel">
-                <h3>🏟️ לוח משחקים והסתברויות</h3>
-                <div id="matches-container"></div>
-            </div>
+const logic = {
+    calculateImpliedProbability(odds) {
+        return odds > 0 ? (1 / odds) * 100 : 0;
+    },
 
-            <div class="panel">
-                <h3>🧮 מנתח ערך (Value Finder)</h3>
-                <div class="calc-tool">
-                    <label>יחס שוק נוכחי:</label>
-                    <input type="number" id="odds-input" step="0.01" oninput="logic.updateProb()">
-                    <div id="prob-display" class="result">הסתברות גלומה: --%</div>
-                    <p class="hint">אם ה-AI נותן הסתברות גבוהה מהערך הזה, יש כאן "ערך סטטיסטי".</p>
+    updateProb() {
+        const val = document.getElementById('odds-input').value;
+        const prob = this.calculateImpliedProbability(val);
+        document.getElementById('prob-display').innerText = `הסתברות גלומה: ${prob.toFixed(1)}%`;
+    }
+};
+
+const ui = {
+    showSection(id) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    },
+
+    renderMatches(data) {
+        const container = document.getElementById('matches-container');
+        container.innerHTML = data.map(m => `
+            <div class="match-card">
+                <div class="match-teams">${m.home} vs ${m.away}</div>
+                <div class="prob-bar-container">
+                    <div class="prob-home" style="width: ${m.probH}%"></div>
+                    <div class="prob-away" style="width: ${m.probA}%"></div>
                 </div>
+                <small>ניתוח הסתברות: בית ${m.probH}% | חוץ ${m.probA}%</small>
             </div>
-        </div>
-    </section>
-</main>
+        `).join('');
+    }
+};
 
-<script src="app.js"></script>
-</body>
-</html>
+const demoData = [
+    { home: 'Real Madrid', away: 'Barcelona', probH: 38, probA: 42 },
+    { home: 'Liverpool', away: 'Arsenal', probH: 55, probA: 20 }
+];
