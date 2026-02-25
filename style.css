@@ -1,70 +1,58 @@
-:root {
-    --bg: #0a0e17;
-    --panel: #141b2d;
-    --accent: #00d4ff;
-    --text: #e8eaf6;
-    --muted: #5c6b8a;
-    --border: #1e2d4a;
-}
-
-body {
-    background-color: var(--bg);
-    color: var(--text);
-    font-family: 'Heebo', sans-serif;
-    margin: 0;
-}
-
-header {
-    background: rgba(13, 18, 32, 0.9);
-    padding: 1rem 2rem;
+/* הוסף לקובץ ה-CSS הקיים */
+.filter-strip {
     display: flex;
-    justify-content: space-between;
-    border-bottom: 1px solid var(--border);
+    gap: 10px;
+    margin-bottom: 20px;
 }
 
-.logo { font-family: 'Bebas Neue'; font-size: 2rem; color: var(--accent); }
-.logo span { color: white; }
-
-.main-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 20px;
-    padding: 20px;
-}
-
-.panel {
+.sport-tab {
     background: var(--panel);
-    border-radius: 12px;
-    padding: 20px;
     border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 20px;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.sport-tab.active {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+    font-weight: bold;
 }
 
 .match-card {
-    background: #1c253d;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 10px;
+    border-left: 4px solid var(--accent);
+    transition: transform 0.2s;
 }
 
-.prob-bar-container {
-    height: 8px;
-    background: #0d1220;
+.match-card:hover {
+    transform: scale(1.01);
+}
+
+.momentum-badge {
+    font-size: 0.7rem;
+    padding: 2px 6px;
     border-radius: 4px;
-    display: flex;
-    overflow: hidden;
-    margin: 10px 0;
+    margin-right: 8px;
 }
 
-.prob-home { background: var(--accent); height: 100%; }
-.prob-away { background: #70a1ff; height: 100%; }
+.momentum-up { background: rgba(0, 230, 118, 0.2); color: var(--green); }
 
-/* Modal for API Key */
-.modal {
-    position: fixed;
-    inset: 0;
-    background: var(--bg);
+.info-list {
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+.power-rank-item {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.value-tag {
+    color: var(--yellow);
+    font-weight: bold;
 }
