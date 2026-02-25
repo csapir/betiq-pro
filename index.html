@@ -13,7 +13,7 @@
 <div id="setup-screen" class="modal">
     <div class="setup-box">
         <h2 class="logo">SPORT<span>IQ</span></h2>
-        <p>הזן מפתחות API לגישה לנתונים חיים</p>
+        <p>מערכת איסוף נתונים וניתוח AI</p>
         <input type="password" id="oddsApiKey" placeholder="The Odds API Key">
         <input type="password" id="anthropicKey" placeholder="Claude AI API Key">
         <button class="primary-btn" onclick="app.start()">הפעל מערכת אנליטית</button>
@@ -25,17 +25,19 @@
     <div class="logo">SPORT<span>IQ</span></div>
     <nav>
         <button onclick="ui.showSection('dashboard')" class="nav-link active">מרכז נתונים</button>
-        <button onclick="ui.showSection('rankings')" class="nav-link">דירוגי כוח</button>
+        <button onclick="ui.showSection('alerts')" class="nav-link">🔔 התראות חמות</button>
     </nav>
-    <div class="live-status">● LIVE DATA FEED</div>
+    <div class="live-status"><span class="dot"></span> LIVE DATA FEED</div>
 </header>
 
 <main>
     <section id="dashboard" class="page active">
         <div class="filter-strip">
             <button id="btn-soccer" onclick="logic.filterSport('soccer')" class="sport-tab active">⚽ כדורגל</button>
-            <button id="btn-basketball" onclick="logic.filterSport('basketball')" class="sport-tab">🏀 כדורסל (NBA/Euro)</button>
+            <button id="btn-basketball" onclick="logic.filterSport('basketball')" class="sport-tab">🏀 כדורסל</button>
         </div>
+
+        <div id="quick-alerts" class="alerts-container"></div>
 
         <div class="stats-strip">
             <div class="stat-card">
@@ -48,34 +50,31 @@
             </div>
             <div class="stat-card">
                 <span class="label">📈 מומנטום ליגה</span>
-                <span class="value" style="color:var(--green)">חיובי</span>
+                <span id="league-momentum" class="value" style="color:var(--green)">חיובי</span>
             </div>
         </div>
 
         <div class="main-grid">
             <div class="panel">
                 <div class="panel-header">
-                    <h3>🏟️ לוח משחקים וניתוח הסתברויות</h3>
+                    <h3>🏟️ לוח משחקים והסתברויות</h3>
                     <button class="refresh-btn" onclick="app.loadData()">🔄 רענן</button>
                 </div>
-                <div id="matches-container">
-                    <p class="muted">טוען נתונים...</p>
-                </div>
+                <div id="matches-container"></div>
             </div>
 
             <div class="panel">
                 <div class="panel-header">
-                    <h3>🔍 ניתוח מעמיק (Deep Insights)</h3>
+                    <h3>🔍 ניתוח מעמיק וגרפים</h3>
                 </div>
                 <div id="detail-view">
-                    <p class="muted">בחר משחק מהרשימה כדי לראות נתונים מתקדמים</p>
                     <div id="analysis-content" style="display:none;">
                         <div class="chart-container">
                             <canvas id="matchChart"></canvas>
                         </div>
-                        <div class="micro-stats" id="micro-stats-content">
-                            </div>
+                        <div class="micro-stats" id="micro-stats-content"></div>
                     </div>
+                    <p id="placeholder-text" class="muted">בחר משחק כדי לנתח נתונים מתקדמים</p>
                 </div>
             </div>
         </div>
