@@ -1,6 +1,6 @@
 const app = {
     apiKey: '480d7b8455mshb4ee5606f0a42a1p10a646jsn64b65efdb148',
-    // הגדרות טלגרם - הכנס את הפרטים שלך כאן
+    8657296835:AAGoB7Qd0ytyCv3xGdzxn7jQ9xBIrpggH4s
     telegramToken: 'כאן_שמים_את_הטוקן_מהבוט', 
     chatId: 'כאן_שמים_את_האיידי_שלך',
     currentMatches: [],
