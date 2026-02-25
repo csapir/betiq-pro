@@ -1,64 +1,61 @@
-const app = {
-    config: {
-        oddsKey: '',
-        aiKey: '',
-        isDemo: false
-    },
-
-    start() {
-        this.config.oddsKey = document.getElementById('oddsApiKey').value;
-        this.config.aiKey = document.getElementById('anthropicKey').value;
-        document.getElementById('setup-screen').style.display = 'none';
-        this.loadData();
-    },
-
-    startDemo() {
-        this.config.isDemo = true;
-        document.getElementById('setup-screen').style.display = 'none';
-        this.loadData();
-    },
-
-    async loadData() {
-        // כאן תבוא הפונקציה שמושכת נתונים מה-API
-        console.log("Loading sports data...");
-        ui.renderMatches(demoData);
-    }
-};
-
+// הרחבת האובייקט logic בתוך app.js
 const logic = {
-    calculateImpliedProbability(odds) {
-        return odds > 0 ? (1 / odds) * 100 : 0;
+    currentSport: 'soccer',
+
+    filterSport(sport) {
+        this.currentSport = sport;
+        document.querySelectorAll('.sport-tab').forEach(t => t.classList.remove('active'));
+        event.target.classList.add('active');
+        app.loadData();
     },
 
-    updateProb() {
-        const val = document.getElementById('odds-input').value;
-        const prob = this.calculateImpliedProbability(val);
-        document.getElementById('prob-display').innerText = `הסתברות גלומה: ${prob.toFixed(1)}%`;
-    }
-};
-
-const ui = {
-    showSection(id) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
+    // פונקציה שמחשבת "ציון כוח" (רק לצורך תצוגה, מבוסס על הדאטה)
+    calculatePowerScore(match) {
+        // כאן היינו מכניסים חישוב של xG, Pace, או ELO
+        return Math.floor(Math.random() * 40) + 60; 
     },
 
-    renderMatches(data) {
-        const container = document.getElementById('matches-container');
-        container.innerHTML = data.map(m => `
-            <div class="match-card">
-                <div class="match-teams">${m.home} vs ${m.away}</div>
-                <div class="prob-bar-container">
-                    <div class="prob-home" style="width: ${m.probH}%"></div>
-                    <div class="prob-away" style="width: ${m.probA}%"></div>
-                </div>
-                <small>ניתוח הסתברות: בית ${m.probH}% | חוץ ${m.probA}%</small>
+    renderPowerRankings() {
+        const container = document.getElementById('rankings-container');
+        const teams = this.currentSport === 'soccer' 
+            ? ['מנצ'סטר סיטי', 'באיירן מינכן', 'ארסנל', 'ריאל מדריד']
+            : ['בוסטון סלטיקס', 'דנבר נאגטס', 'אוקלהומה סיטי'];
+            
+        container.innerHTML = teams.map((team, i) => `
+            <div class="power-rank-item">
+                <span>#${i+1} ${team}</span>
+                <span class="momentum-badge momentum-up">↑ בשיפור</span>
             </div>
         `).join('');
+    },
+
+    renderInjuries() {
+        const container = document.getElementById('injury-reports');
+        const reports = this.currentSport === 'soccer'
+            ? ['קבין דה בריינה - בספק (קרסול)', 'מרטין אודגור - חזר לאימונים']
+            : ['קוואי לאונרד - בחוץ (ברך)', 'ג'ואל אמביד - דקות מוגבלות'];
+            
+        container.innerHTML = reports.map(r => `<div style="margin-bottom:8px">⚠️ ${r}</div>`).join('');
     }
 };
 
-const demoData = [
-    { home: 'Real Madrid', away: 'Barcelona', probH: 38, probA: 42 },
-    { home: 'Liverpool', away: 'Arsenal', probH: 55, probA: 20 }
+// עדכון פונקציית הטעינה
+app.loadData = async function() {
+    console.log(`fetching ${logic.currentSport} data...`);
+    // כאן תמשוך את הנתונים מה-API לפי logic.currentSport
+    
+    ui.renderMatches(logic.currentSport === 'soccer' ? soccerDemo : hoopDemo);
+    logic.renderPowerRankings();
+    logic.renderInjuries();
+    document.getElementById('active-events').innerText = logic.currentSport === 'soccer' ? '12' : '8';
+};
+
+const soccerDemo = [
+    { home: 'Arsenal', away: 'Liverpool', probH: 42, probA: 33, info: 'ניתוח AI: ליברפול עם הגנה חסרה' },
+    { home: 'Real Madrid', away: 'Milan', probH: 65, probA: 15, info: 'מדד מומנטום גבוה למארחת' }
+];
+
+const hoopDemo = [
+    { home: 'Lakers', away: 'Warriors', probH: 52, probA: 48, info: 'קצב משחק (Pace) צפוי גבוה' },
+    { home: 'Celtics', away: 'Heat', probH: 70, probA: 30, info: 'יתרון משמעותי בריבאונד' }
 ];
