@@ -1,60 +1,43 @@
 const app = {
-    // במידה ותרצה להזין מפתחות בעתיד, שים אותם כאן בגרשיים
-    config: { 
-        oddsKey: '', 
-        aiKey: '' 
-    },
+    // כדי לקבל מידע אמיתי בחינם:
+    // 1. הירשם ל-https://rapidapi.com/
+    // 2. חפש את "API-Football" או "NBA Sensei"
+    // 3. העתק את ה-API Key שלך לכאן
+    apiKey: 'YOUR_RAPIDAPI_KEY_HERE', 
 
     init() {
-        console.log("SportIQ Pro Loaded");
         this.loadData();
     },
 
     async loadData() {
-        // אם אין מפתח, נשתמש בנתוני דמו. אם יש, ננסה למשוך מה-API.
-        if (!this.config.oddsKey) {
-            console.log("No API key - using Demo Mode");
-            const data = logic.currentSport === 'soccer' ? soccerDemo : hoopDemo;
-            ui.renderMatches(data);
-            ui.renderAlerts(data);
-            document.getElementById('active-events').innerText = data.length;
+        if (this.apiKey !== 'YOUR_RAPIDAPI_KEY_HERE') {
+            this.fetchFromLiveAPI();
         } else {
-            this.fetchLiveOdds();
+            // נתוני דמו מושקעים
+            ui.renderMatches(logic.currentSport === 'soccer' ? soccerDemo : hoopDemo);
         }
     },
 
-    async fetchLiveOdds() {
-        // פונקציית משיכה מה-API (פעילה רק אם יש מפתח)
-        try {
-            const response = await fetch(`https://api.the-odds-api.com/v4/sports/upcoming/odds/?apiKey=${this.config.oddsKey}&regions=eu`);
-            const data = await response.json();
-            // כאן תבוא לוגיקת עיבוד הנתונים מה-API
-            console.log("Live Data Fetched:", data);
-        } catch (e) {
-            console.error("API Fetch Error", e);
-        }
+    async fetchFromLiveAPI() {
+        // דוגמה לקריאה ל-API כדורגל (חינמי עד כמות מסוימת)
+        const options = {
+            method: 'GET',
+            headers: {
+                'X-RapidAPI-Key': this.apiKey,
+                'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
+            }
+        };
+        // fetch('https://api-football-v1.p.rapidapi.com/v3/fixtures?live=all', options)...
     }
 };
 
 const logic = {
     currentSport: 'soccer',
-
     filterSport(sport) {
         this.currentSport = sport;
-        document.querySelectorAll('.sport-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
         document.getElementById(`btn-${sport}`).classList.add('active');
         app.loadData();
-    },
-
-    generateStats(id) {
-        const isSoccer = this.currentSport === 'soccer';
-        return {
-            corners: (Math.random() * 6 + 4).toFixed(1),
-            offsides: (Math.random() * 3 + 1).toFixed(1),
-            homeGoals: (Math.random() * 1.5 + 1).toFixed(1),
-            awayGoals: (Math.random() * 1.2 + 0.8).toFixed(1),
-            trend: Array.from({length: 5}, () => Math.floor(Math.random() * 4))
-        };
     }
 };
 
@@ -63,81 +46,76 @@ const ui = {
         const container = document.getElementById('matches-container');
         container.innerHTML = data.map((m, idx) => `
             <div class="match-card" onclick="ui.showAnalysis(${idx})">
-                <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--muted)">
-                    <span>${m.league}</span>
-                    <span>AI Analysed</span>
-                </div>
-                <div style="margin: 8px 0; font-weight:bold;">${m.home} vs ${m.away}</div>
-                <div class="prob-bar-container">
-                    <div class="prob-h" style="width: ${m.probH}%"></div>
-                    <div class="prob-a" style="width: ${m.probA}%"></div>
-                </div>
-                <div style="display:flex; justify-content:space-between; font-size:0.7rem">
-                    <span>בית: ${m.probH}%</span>
-                    <span>חוץ: ${m.probA}%</span>
+                <div style="font-size:0.7rem; color:var(--accent); margin-bottom:5px">● ${m.league}</div>
+                <div style="display:flex; justify-content:space-between; align-items:center">
+                    <span style="font-weight:600">${m.home}</span>
+                    <span style="color:var(--text-dim)">VS</span>
+                    <span style="font-weight:600">${m.away}</span>
                 </div>
             </div>
         `).join('');
     },
 
-    renderAlerts(data) {
-        const container = document.getElementById('quick-alerts');
-        const alerts = [];
-        data.forEach(m => {
-            if (m.probH > 60) alerts.push(`🔥 פייבוריטית ברורה: ${m.home}`);
-            if (m.isHighCorners) alerts.push(`🚩 רצף קרנות: ${m.home}`);
-        });
-        container.innerHTML = alerts.map(a => `<div class="alert-pill">🔔 ${a}</div>`).join('');
-    },
-
     showAnalysis(id) {
+        const data = logic.currentSport === 'soccer' ? soccerDemo[id] : hoopDemo[id];
         document.getElementById('analysis-content').style.display = 'block';
         document.getElementById('placeholder-text').style.display = 'none';
-        const stats = logic.generateStats(id);
-        const labels = logic.currentSport === 'soccer' 
-            ? ['🚩 קרנות (ממוצע)', '🚫 נבדלים', '🏠 שערי בית', '✈️ שערי חוץ']
-            : ['🏀 ריבאונדים', '🎯 % מהשדה', '🏠 נקודות בית', '✈️ נקודות חוץ'];
-
+        document.getElementById('selected-match-title').innerText = `${data.home} vs ${data.away}`;
+        
+        // עדכון גרף
+        this.updateChart(data.trend);
+        
+        // עדכון בר הסתברות
+        document.getElementById('win-bar').style.width = data.probH + '%';
+        
+        // עדכון סטטיסטיקות
         document.getElementById('micro-stats-content').innerHTML = `
-            <div class="micro-stat-row"><span>${labels[0]}</span><b>${stats.corners}</b></div>
-            <div class="micro-stat-row"><span>${labels[1]}</span><b>${stats.offsides}</b></div>
-            <div class="micro-stat-row"><span>${labels[2]}</span><b>${stats.homeGoals}</b></div>
-            <div class="micro-stat-row"><span>${labels[3]}</span><b>${stats.awayGoals}</b></div>
+            <div class="micro-stat-row"><span>🚩 קרנות</span> <b>${data.stats.s1}</b></div>
+            <div class="micro-stat-row"><span>🎯 בעיטות למסגרת</span> <b>${data.stats.s2}</b></div>
+            <div class="micro-stat-row"><span>🏠 שערים למשחק</span> <b>${data.stats.s3}</b></div>
         `;
-        this.updateChart(stats.trend);
     },
 
     updateChart(data) {
         const ctx = document.getElementById('matchChart').getContext('2d');
         if (window.myChart) window.myChart.destroy();
+        
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(0, 242, 255, 0.3)');
+        gradient.addColorStop(1, 'rgba(0, 242, 255, 0)');
+
         window.myChart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: ['G1', 'G2', 'G3', 'G4', 'G5'],
                 datasets: [{
-                    data: data, borderColor: '#00d4ff', backgroundColor: 'rgba(0, 212, 255, 0.1)', fill: true, tension: 0.4
+                    data: data,
+                    borderColor: '#00f2ff',
+                    borderWidth: 3,
+                    fill: true,
+                    backgroundColor: gradient,
+                    tension: 0.4,
+                    pointRadius: 0
                 }]
             },
             options: {
-                responsive: true, maintainAspectRatio: false,
+                responsive: true,
+                maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true, grid: { color: '#1e2d4a' } }, x: { grid: { display: false } } }
+                scales: { 
+                    y: { display: false },
+                    x: { grid: { display: false }, ticks: { color: '#555' } }
+                }
             }
         });
-    },
-
-    showSection(id) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
     }
 };
 
 const soccerDemo = [
-    { home: 'Arsenal', away: 'Liverpool', probH: 45, probA: 30, league: 'Premier League', isHighCorners: true },
-    { home: 'Real Madrid', away: 'Barcelona', probH: 62, probA: 18, league: 'La Liga', isHighCorners: false }
+    { home: 'Real Madrid', away: 'Barcelona', league: 'LA LIGA', probH: 65, stats: { s1: '6.2', s2: '8.1', s3: '2.4' }, trend: [2, 3, 1, 4, 2] },
+    { home: 'Man City', away: 'Arsenal', league: 'PREMIER LEAGUE', probH: 58, stats: { s1: '7.8', s2: '6.5', s3: '2.8' }, trend: [3, 3, 2, 5, 4] }
 ];
 
 const hoopDemo = [
-    { home: 'Lakers', away: 'Warriors', probH: 52, probA: 48, league: 'NBA' },
-    { home: 'Celtics', away: 'Knicks', probH: 70, probA: 30, league: 'NBA' }
+    { home: 'Lakers', away: 'Warriors', league: 'NBA', probH: 52, stats: { s1: '45.2', s2: '12.1', s3: '112.5' }, trend: [110, 105, 118, 122, 115] }
 ];
