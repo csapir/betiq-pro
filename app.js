@@ -1,5 +1,5 @@
 const app = {
-    // הכנס כאן את המפתח שלך מ-RapidAPI
+    480d7b8455mshb4ee5606f0a42a1p10a646jsn64b65efdb148
     apiKey: 'YOUR_RAPIDAPI_KEY_HERE', 
     currentMatches: [],
 
