@@ -15,10 +15,10 @@ const app = {
     },
 
     loadData() {
-        console.log("Fetching live sports data...");
-        const currentData = logic.currentSport === 'soccer' ? soccerData : hoopData;
-        ui.renderMatches(currentData);
-        document.getElementById('active-events').innerText = currentData.length;
+        const data = logic.currentSport === 'soccer' ? soccerData : hoopData;
+        ui.renderMatches(data);
+        ui.renderAlerts(data);
+        document.getElementById('active-events').innerText = data.length;
     }
 };
 
@@ -32,12 +32,11 @@ const logic = {
         app.loadData();
     },
 
-    getDetailData(matchId) {
-        // סימולציה של נתונים מורחבים מה-API
+    generateMatchStats(id) {
         const isSoccer = this.currentSport === 'soccer';
         return {
-            corners: isSoccer ? (Math.random() * 5 + 4).toFixed(1) : 'N/A',
-            offsides: isSoccer ? (Math.random() * 3 + 1).toFixed(1) : 'N/A',
+            corners: (Math.random() * 6 + 4).toFixed(1),
+            offsides: (Math.random() * 3 + 1).toFixed(1),
             homeGoals: (Math.random() * 1.5 + 1).toFixed(1),
             awayGoals: (Math.random() * 1.2 + 0.8).toFixed(1),
             trend: Array.from({length: 5}, () => Math.floor(Math.random() * 4))
@@ -46,64 +45,65 @@ const logic = {
 };
 
 const ui = {
-    showSection(id) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-    },
-
     renderMatches(data) {
         const container = document.getElementById('matches-container');
         container.innerHTML = data.map((m, idx) => `
-            <div class="match-card" onclick="ui.showMatchAnalysis(${idx}, '${m.home} vs ${m.away}')">
-                <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:var(--muted)">
+            <div class="match-card" onclick="ui.showAnalysis(${idx}, '${m.home}')">
+                <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--muted)">
                     <span>${m.league}</span>
                     <span>AI Analysis Ready</span>
                 </div>
-                <div style="margin: 10px 0; font-weight:bold; font-size:1.1rem">
-                    ${m.home} vs ${m.away}
-                </div>
+                <div style="margin: 8px 0; font-weight:bold;">${m.home} vs ${m.away}</div>
                 <div class="prob-bar-container">
                     <div class="prob-h" style="width: ${m.probH}%"></div>
                     <div class="prob-a" style="width: ${m.probA}%"></div>
-                </div>
-                <div style="display:flex; justify-content:space-between; font-size:0.75rem">
-                    <span>בית: ${m.probH}%</span>
-                    <span>חוץ: ${m.probA}%</span>
                 </div>
             </div>
         `).join('');
     },
 
-    showMatchAnalysis(id, title) {
-        document.getElementById('analysis-content').style.display = 'block';
-        const detail = logic.getDetailData(id);
+    renderAlerts(data) {
+        const container = document.getElementById('quick-alerts');
+        const alerts = [];
         
-        // עדכון מדדי מיקרו
+        data.forEach(m => {
+            if (m.probH > 60) alerts.push(`🔥 דומיננטיות ביתית: ${m.home}`);
+            if (m.isHighCorners) alerts.push(`🚩 רצף קרנות גבוה: ${m.home}`);
+            if (m.isHighScoring) alerts.push(`⚽ התקפות בשיא: ${m.home} vs ${m.away}`);
+        });
+
+        container.innerHTML = alerts.map(a => `<div class="alert-pill">🔔 ${a}</div>`).join('');
+    },
+
+    showAnalysis(id, homeTeam) {
+        document.getElementById('analysis-content').style.display = 'block';
+        document.getElementById('placeholder-text').style.display = 'none';
+        
+        const stats = logic.generateMatchStats(id);
         const microContainer = document.getElementById('micro-stats-content');
+        
         const labels = logic.currentSport === 'soccer' 
-            ? ['🚩 קרנות ממוצע', '🚫 נבדלים', '🏠 שערי בית', '✈️ שערי חוץ']
-            : ['🏀 ריבאונדים', '🎯 אחוז מהשדה', '🏠 נקודות בית', '✈️ נקודות חוץ'];
-            
+            ? ['🚩 קרנות (ממוצע)', '🚫 נבדלים', '🏠 שערי בית', '✈️ שערי חוץ']
+            : ['🏀 ריבאונדים', '🎯 % מהשדה', '🏠 נקודות בית', '✈️ נקודות חוץ'];
+
         microContainer.innerHTML = `
-            <div class="micro-stat-row"><span>${labels[0]}</span> <span>${detail.corners}</span></div>
-            <div class="micro-stat-row"><span>${labels[1]}</span> <span>${detail.offsides}</span></div>
-            <div class="micro-stat-row"><span>${labels[2]}</span> <span>${detail.homeGoals}</span></div>
-            <div class="micro-stat-row"><span>${labels[3]}</span> <span>${detail.awayGoals}</span></div>
+            <div class="micro-stat-row"><span>${labels[0]}</span><b>${stats.corners}</b></div>
+            <div class="micro-stat-row"><span>${labels[1]}</span><b>${stats.offsides}</b></div>
+            <div class="micro-stat-row"><span>${labels[2]}</span><b>${stats.homeGoals}</b></div>
+            <div class="micro-stat-row"><span>${labels[3]}</span><b>${stats.awayGoals}</b></div>
         `;
 
-        this.updateChart(detail.trend);
+        this.updateChart(stats.trend);
     },
 
     updateChart(data) {
         const ctx = document.getElementById('matchChart').getContext('2d');
         if (window.myChart) window.myChart.destroy();
-
         window.myChart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: ['G1', 'G2', 'G3', 'G4', 'G5'],
                 datasets: [{
-                    label: 'מגמת ביצועים (5 משחקים אחרונים)',
                     data: data,
                     borderColor: '#00d4ff',
                     backgroundColor: 'rgba(0, 212, 255, 0.1)',
@@ -114,24 +114,30 @@ const ui = {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
                 scales: { 
                     y: { beginAtZero: true, grid: { color: '#1e2d4a' } },
                     x: { grid: { display: false } }
-                },
-                plugins: { legend: { display: false } }
+                }
             }
         });
+    },
+
+    showSection(id) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        event.target.classList.add('active');
     }
 };
 
-// נתוני דמו
 const soccerData = [
-    { home: 'Arsenal', away: 'Liverpool', probH: 45, probA: 30, league: 'Premier League' },
-    { home: 'Real Madrid', away: 'Barcelona', probH: 40, probA: 40, league: 'La Liga' },
-    { home: 'Bayern', away: 'Dortmund', probH: 60, probA: 20, league: 'Bundesliga' }
+    { home: 'Arsenal', away: 'Liverpool', probH: 45, probA: 30, league: 'Premier League', isHighCorners: true },
+    { home: 'Real Madrid', away: 'Barcelona', probH: 62, probA: 18, league: 'La Liga', isHighScoring: true },
+    { home: 'Bayern', away: 'Dortmund', probH: 55, probA: 20, league: 'Bundesliga', isHighCorners: false }
 ];
 
 const hoopData = [
-    { home: 'Lakers', away: 'Warriors', probH: 52, probA: 48, league: 'NBA' },
-    { home: 'Celtics', away: 'Knicks', probH: 65, probA: 35, league: 'NBA' }
+    { home: 'Lakers', away: 'Warriors', probH: 52, probA: 48, league: 'NBA', isHighScoring: true },
+    { home: 'Celtics', away: 'Knicks', probH: 70, probA: 30, league: 'NBA', isHighCorners: false }
 ];
