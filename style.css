@@ -1,77 +1,21 @@
 :root {
-    --bg-main: #05070a;
-    --sidebar: #0a0d14;
-    --card-bg: rgba(20, 27, 45, 0.7);
-    --accent: #00f2ff;
-    --text-main: #ffffff;
-    --text-dim: #94a3b8;
-    --border: rgba(255, 255, 255, 0.05);
+    --bg-main: #05070a; --sidebar: #0a0d14; --card-bg: rgba(20, 27, 45, 0.7);
+    --accent: #00f2ff; --text-main: #ffffff; --text-dim: #94a3b8; --border: rgba(255, 255, 255, 0.05);
 }
-
-body {
-    background: var(--bg-main);
-    color: var(--text-main);
-    font-family: 'Inter', 'Heebo', sans-serif;
-    margin: 0;
-    overflow: hidden;
-}
-
+body { background: var(--bg-main); color: var(--text-main); font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; direction: rtl; }
 .app-container { display: flex; height: 100vh; }
-
-/* Sidebar */
-.sidebar {
-    width: 80px;
-    background: var(--sidebar);
-    border-left: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px 0;
-}
-
+.sidebar { width: 80px; background: var(--sidebar); border-left: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 20px 0; }
 .logo { font-weight: 900; font-size: 1.5rem; color: var(--accent); }
-.logo span { color: white; }
-
 .side-nav { margin-top: 50px; display: flex; flex-direction: column; gap: 30px; }
-.nav-item { 
-    background: none; border: none; font-size: 1.4rem; cursor: pointer; 
-    opacity: 0.4; transition: 0.3s; filter: grayscale(1);
-}
-.nav-item.active { opacity: 1; filter: grayscale(0); }
-
-/* Main Content */
+.nav-item { background: none; border: none; font-size: 1.4rem; cursor: pointer; opacity: 0.6; }
 .main-content { flex: 1; padding: 0 40px; overflow-y: auto; }
 .top-bar { height: 80px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
-
-.welcome-header h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; }
-.welcome-header span { color: var(--accent); }
-
-.pill { 
-    background: #1a2235; border: none; color: white; padding: 8px 25px; 
-    border-radius: 20px; margin-left: 10px; cursor: pointer; transition: 0.3s;
-}
-.pill.active { background: var(--accent); color: black; font-weight: bold; }
-
-/* Grid */
-.dashboard-grid { display: grid; grid-template-columns: 400px 1fr; gap: 30px; margin-top: 30px; }
-
-.glass-card { 
-    background: var(--card-bg); backdrop-filter: blur(10px); 
-    border: 1px solid var(--border); border-radius: 24px; padding: 30px;
-}
-
-.match-card {
-    background: #111827; border: 1px solid var(--border);
-    padding: 20px; border-radius: 16px; margin-bottom: 15px; cursor: pointer; transition: 0.3s;
-}
-.match-card:hover { border-color: var(--accent); background: #161e2e; }
-
-.chart-wrapper { height: 250px; margin: 20px 0; }
-
-.progress-container { background: #080c14; height: 10px; border-radius: 5px; margin-top: 10px; overflow: hidden; }
-.progress-fill { background: var(--accent); height: 100%; transition: 1s ease-out; }
-
-.empty-state { text-align: center; margin-top: 100px; color: var(--text-dim); }
-.empty-state .icon { font-size: 4rem; margin-bottom: 20px; }
-
-.micro-stat-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.api-badge { background: #1a2235; padding: 5px 12px; border-radius: 12px; font-size: 0.7rem; color: var(--accent); border: 1px solid var(--accent); }
+.dashboard-grid { display: grid; grid-template-columns: 380px 1fr; gap: 30px; margin-top: 30px; }
+.glass-card { background: var(--card-bg); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 24px; padding: 30px; }
+.match-card { background: #111827; border: 1px solid var(--border); padding: 15px; border-radius: 16px; margin-bottom: 12px; cursor: pointer; }
+.match-card:hover { border-color: var(--accent); }
+.chart-wrapper { height: 220px; }
+.micro-stat-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+.sync-btn { background: var(--accent); border: none; padding: 5px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+.muted { color: var(--text-dim); text-align: center; margin-top: 20px; }
