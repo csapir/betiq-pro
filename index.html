@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SportIQ Ultra — Multi-Sport Live</title>
+    <title>SportIQ Ultra — AI Live Analysis</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Heebo:wght@100;400;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -20,7 +20,7 @@
 
         <main class="main-content">
             <header class="top-bar">
-                <div class="search-box"><input type="text" placeholder="חיפוש ליגה..."></div>
+                <div class="search-box"><input type="text" placeholder="חיפוש ליגה או קבוצה..."></div>
                 <div class="user-status">
                     <span id="api-status" class="api-badge">CONNECTING...</span>
                 </div>
@@ -28,21 +28,21 @@
 
             <section id="dashboard" class="content-page active">
                 <div class="welcome-header">
-                    <h1>נתוני <span>זמן אמת</span></h1>
+                    <h1>ניתוח נתונים <span>בזמן אמת</span></h1>
                     <div class="filter-pills">
-                        <button id="btn-soccer" onclick="logic.changeSport('soccer')" class="pill active">⚽ Soccer</button>
-                        <button id="btn-basketball" onclick="logic.changeSport('basketball')" class="pill">🏀 Basketball (NBA)</button>
+                        <button id="btn-soccer" onclick="logic.changeSport('soccer')" class="pill active">⚽ כדורגל</button>
+                        <button id="btn-basketball" onclick="logic.changeSport('basketball')" class="pill">🏀 כדורסל</button>
                     </div>
                 </div>
 
                 <div class="dashboard-grid">
                     <div class="list-panel">
                         <div class="panel-head">
-                            <h3 id="list-title">משחקי כדורגל פעילים</h3>
-                            <button class="sync-btn" onclick="app.fetchData()">SYNC LIVE</button>
+                            <h3 id="list-title">משחקים חיים כרגע</h3>
+                            <button class="sync-btn" onclick="app.fetchData()">SYNC</button>
                         </div>
                         <div id="matches-container" class="scroll-list">
-                            <p class="muted">לחץ על SYNC לטעינה...</p>
+                            <p class="muted">ממתין לסנכרון נתונים...</p>
                         </div>
                     </div>
 
@@ -50,16 +50,18 @@
                         <div id="analysis-content" class="glass-card" style="display:none;">
                             <div class="card-header">
                                 <h2 id="selected-match-title">בחר משחק</h2>
-                                <span id="match-status" class="ai-label">LIVE</span>
                             </div>
                             <div class="stats-viz">
-                                <div class="chart-wrapper"><canvas id="matchChart"></canvas></div>
+                                <div class="chart-wrapper">
+                                    <canvas id="matchChart"></canvas>
+                                    <div id="chart-center-label">AI</div>
+                                </div>
                                 <div class="stats-summary" id="micro-stats-content"></div>
                             </div>
                         </div>
                         <div id="placeholder-text" class="empty-state">
-                            <div class="icon">🏀</div>
-                            <p>המערכת מוכנה למשיכת נתוני NBA וכדורגל עולמי</p>
+                            <div class="icon">🤖</div>
+                            <p>מנוע ה-AI מוכן. בחר משחק מהרשימה כדי להתחיל בניתוח סיכויים.</p>
                         </div>
                     </div>
                 </div>
