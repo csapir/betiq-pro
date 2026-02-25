@@ -1,70 +1,55 @@
 const app = {
     480d7b8455mshb4ee5606f0a42a1p10a646jsn64b65efdb148
-    apiKey: 'YOUR_RAPIDAPI_KEY_HERE', 
+    apiKey: '480d7b8455mshb4ee5606f0a42a1p10a646jsn64b65efdb148', 
     currentMatches: [],
 
     init() {
-        if (this.apiKey === 'YOUR_RAPIDAPI_KEY_HERE') {
-            document.getElementById('api-status').innerText = 'DEMO MODE (No Key)';
-        } else {
-            document.getElementById('api-status').innerText = 'API CONNECTED';
-        }
+        console.log("SportIQ Ultra Active with SportAPI");
+        document.getElementById('api-status').innerText = 'SPORT-API ACTIVE';
+        // טעינה ראשונית של כדורגל
+        this.fetchData();
     },
 
     async fetchData() {
         const container = document.getElementById('matches-container');
-        container.innerHTML = '<p class="muted">מתחבר לשרתים...</p>';
+        container.innerHTML = '<p class="muted">סורק משחקים חיים ב-SportAPI...</p>';
 
-        const sport = logic.currentSport;
-        // הגדרות API משתנות לפי הענף
-        const endpoint = sport === 'soccer' 
-            ? 'https://api-football-v1.p.rapidapi.com/v3/fixtures?live=all' 
-            : 'https://api-basketball.p.rapidapi.com/games?live=all';
+        const sportId = logic.currentSport === 'soccer' ? '1' : '2'; // 1 לכדורגל, 2 לכדורסל ברוב ה-APIs
         
-        const host = sport === 'soccer' 
-            ? 'api-football-v1.p.rapidapi.com' 
-            : 'api-basketball.p.rapidapi.com';
-
         const options = {
             method: 'GET',
             headers: {
-                'X-RapidAPI-Key': this.apiKey,
-                'X-RapidAPI-Host': host
+                'x-rapidapi-key': this.apiKey,
+                'x-rapidapi-host': 'sportapi7.p.rapidapi.com'
             }
         };
 
         try {
-            const response = await fetch(endpoint, options);
+            // קריאה למשחקים חיים (Live) מה-SportAPI שלך
+            const response = await fetch('https://sportapi7.p.rapidapi.com/api/v1/sport/football/events/live', options);
             const result = await response.json();
             
-            if (result.response && result.response.length > 0) {
-                this.currentMatches = result.response.map(item => {
-                    if (sport === 'soccer') {
-                        return {
-                            home: item.teams.home.name,
-                            away: item.teams.away.name,
-                            league: item.league.name,
-                            score: `${item.goals.home} - ${item.goals.away}`,
-                            stats: { s1: 'קרנות: ' + (Math.floor(Math.random()*8)), s2: 'שערים: ' + (item.goals.home + item.goals.away), s3: 'דקה: ' + item.fixture.status.elapsed }
-                        };
-                    } else {
-                        // פורמט כדורסל
-                        return {
-                            home: item.teams.home.name,
-                            away: item.teams.away.name,
-                            league: item.league.name,
-                            score: `${item.scores.home.total} - ${item.scores.away.total}`,
-                            stats: { s1: 'רבע: ' + item.status.short, s2: 'סה"כ נקודות: ' + (item.scores.home.total + item.scores.away.total), s3: 'זמן: LIVE' }
-                        };
+            if (result.events && result.events.length > 0) {
+                this.currentMatches = result.events.map(event => ({
+                    home: event.homeTeam.name,
+                    away: event.awayTeam.name,
+                    league: event.tournament.name,
+                    score: `${event.homeScore.display || 0} - ${event.awayScore.display || 0}`,
+                    time: event.status.description,
+                    id: event.id,
+                    stats: {
+                        s1: "לחץ: " + (event.homeScore.period1 || 0),
+                        s2: "סהזמן: " + event.status.description,
+                        s3: "ID: " + event.id
                     }
-                });
+                }));
                 ui.renderMatches(this.currentMatches);
             } else {
-                container.innerHTML = `<p class="muted">אין משחקי ${sport} פעילים כרגע.</p>`;
+                container.innerHTML = `<p class="muted">אין משחקי ${logic.currentSport} חיים ברגע זה.</p>`;
             }
         } catch (error) {
-            console.error(error);
-            container.innerHTML = '<p class="muted">שגיאה. וודא שהמפתח תקין ב-app.js</p>';
+            console.error("API Error:", error);
+            container.innerHTML = '<p class="muted">שגיאה בתקשורת. וודא שאישרת את ה-Plan ב-RapidAPI.</p>';
         }
     }
 };
@@ -74,8 +59,8 @@ const logic = {
     changeSport(sport) {
         this.currentSport = sport;
         document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-        document.getElementById(`btn-${sport}`).classList.add('active');
-        document.getElementById('list-title').innerText = sport === 'soccer' ? 'משחקי כדורגל פעילים' : 'משחקי NBA/כדורסל פעילים';
+        const btn = document.getElementById(`btn-${sport}`);
+        if(btn) btn.classList.add('active');
         app.fetchData();
     }
 };
@@ -86,11 +71,12 @@ const ui = {
         container.innerHTML = data.map((m, idx) => `
             <div class="match-card" onclick="ui.showAnalysis(${idx})">
                 <div style="font-size:0.7rem; color:var(--accent);">${m.league}</div>
-                <div style="display:flex; justify-content:space-between; margin:8px 0">
-                    <b>${m.home}</b>
-                    <span style="color:var(--accent)">${m.score}</span>
-                    <b>${m.away}</b>
+                <div style="display:flex; justify-content:space-between; margin:8px 0; align-items:center;">
+                    <b style="flex:1; text-align:right;">${m.home}</b>
+                    <span style="background:var(--accent); color:black; padding:2px 8px; border-radius:4px; margin:0 10px; font-weight:bold;">${m.score}</span>
+                    <b style="flex:1; text-align:left;">${m.away}</b>
                 </div>
+                <div style="font-size:0.65rem; color:var(--text-dim)">זמן: ${m.time}</div>
             </div>
         `).join('');
     },
@@ -102,14 +88,14 @@ const ui = {
         document.getElementById('selected-match-title').innerText = `${data.home} vs ${data.away}`;
         
         document.getElementById('micro-stats-content').innerHTML = `
-            <div class="micro-stat-row"><span>📊 מדד 1</span> <b>${data.stats.s1}</b></div>
-            <div class="micro-stat-row"><span>🔥 מדד 2</span> <b>${data.stats.s2}</b></div>
-            <div class="micro-stat-row"><span>⏱️ זמן אמת</span> <b>${data.stats.s3}</b></div>
+            <div class="micro-stat-row"><span>🏟️ ליגה</span> <b>${data.league}</b></div>
+            <div class="micro-stat-row"><span>⏱️ סטטוס</span> <b>${data.time}</b></div>
+            <div class="micro-stat-row"><span>🆔 מזהה משחק</span> <b>${data.id}</b></div>
         `;
         
-        // יצירת גרף מומנטום רנדומלי (מדמה לחץ במשחק)
-        const mockTrend = logic.currentSport === 'soccer' ? [1,2,1,4,3] : [102, 110, 108, 115, 112];
-        this.updateChart(mockTrend);
+        // גרף מומנטום רנדומלי המבוסס על תוצאת המשחק
+        const base = parseInt(data.score.split('-')[0]) + 1;
+        this.updateChart([base, base + 2, base + 1, base + 3]);
     },
 
     updateChart(trendData) {
@@ -118,17 +104,29 @@ const ui = {
         window.myChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: ['T1', 'T2', 'T3', 'T4', 'T5'],
+                labels: ['Q1', 'Q2', 'Q3', 'Q4'],
                 datasets: [{
-                    data: trendData, borderColor: '#00f2ff', tension: 0.4, borderWidth: 2, pointRadius: 2, fill: true,
-                    backgroundColor: 'rgba(0, 242, 255, 0.05)'
+                    data: trendData,
+                    borderColor: '#00f2ff',
+                    backgroundColor: 'rgba(0, 242, 255, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 3
                 }]
             },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
-                scales: { y: { display: false }, x: { grid: { display: false } } }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { 
+                    y: { display: false },
+                    x: { grid: { color: 'rgba(255,255,255,0.05)' } }
+                }
             }
         });
     },
 
-    showSection(id) { /* מעבר בין דפים */ }
+    showSection(id) {
+        // פונקציונליות ניווט במידה ותרצה להוסיף דפים
+    }
 };
