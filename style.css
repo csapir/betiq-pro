@@ -1,0 +1,70 @@
+:root {
+    --bg: #0a0e17;
+    --panel: #141b2d;
+    --accent: #00d4ff;
+    --text: #e8eaf6;
+    --muted: #5c6b8a;
+    --border: #1e2d4a;
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Heebo', sans-serif;
+    margin: 0;
+}
+
+header {
+    background: rgba(13, 18, 32, 0.9);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+}
+
+.logo { font-family: 'Bebas Neue'; font-size: 2rem; color: var(--accent); }
+.logo span { color: white; }
+
+.main-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    padding: 20px;
+}
+
+.panel {
+    background: var(--panel);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid var(--border);
+}
+
+.match-card {
+    background: #1c253d;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.prob-bar-container {
+    height: 8px;
+    background: #0d1220;
+    border-radius: 4px;
+    display: flex;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.prob-home { background: var(--accent); height: 100%; }
+.prob-away { background: #70a1ff; height: 100%; }
+
+/* Modal for API Key */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
