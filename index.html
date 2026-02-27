@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SportIQ Pro - Analysis Suite</title>
+    <title>SportIQ Ultra Pro — AI Analysis Suite</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Heebo:wght@300;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -14,62 +14,83 @@
     <aside class="sidebar">
         <div class="logo">S<span>IQ</span></div>
         <nav>
-            <button onclick="ui.showSection('live')" class="nav-btn active">📡 Live</button>
-            <button onclick="ui.showSection('analysis')" class="nav-btn">📊 Insights</button>
-            <button onclick="ui.showSection('settings')" class="nav-btn">⚙️</button>
+            <button onclick="app.changeSport('soccer')" id="btn-side-soccer" class="nav-btn active">⚽</button>
+            <button onclick="app.changeSport('basketball')" id="btn-side-basketball" class="nav-btn">🏀</button>
         </nav>
     </aside>
 
     <main class="content-area">
         <header class="main-header">
             <div class="header-info">
-                <h1>מרכז פיקוד <span>אנליטי</span></h1>
-                <p id="live-timer">סינכרון נתונים פעיל: 60s</p>
+                <h1>SportIQ <span>Ultra Pro</span></h1>
+                <div class="status-row">
+                    <span id="api-status" class="api-badge">CONNECTING...</span>
+                    <span class="live-clock" id="clock">00:00:00</span>
+                </div>
             </div>
-            <div class="global-stats">
-                <div class="g-stat"><span>דיוק AI:</span> <strong>84%</strong></div>
-                <div class="g-stat"><span>מצב שרת:</span> <strong style="color:var(--accent)">ONLINE</strong></div>
+            <div class="filter-pills">
+                <button onclick="app.changeSport('soccer')" id="btn-soccer" class="pill active">כדורגל</button>
+                <button onclick="app.changeSport('basketball')" id="btn-basketball" class="pill">כדורסל</button>
             </div>
         </header>
 
-        <div class="alerts-ticker" id="alerts-ticker">מחשב מומנטום למשחקים פעילים...</div>
-
-        <div class="dashboard-layout">
-            <section class="matches-panel">
-                <div class="panel-header">
-                    <div class="tabs">
-                        <button onclick="logic.changeSport('soccer')" id="btn-soccer" class="tab-btn active">כדורגל</button>
-                        <button onclick="logic.changeSport('basketball')" id="btn-basketball" class="tab-btn">כדורסל</button>
-                    </div>
+        <div class="dashboard-grid">
+            <section class="list-panel glass">
+                <div class="panel-head">
+                    <h3>משחקים בשידור חי</h3>
+                    <button class="sync-btn" onclick="app.fetchData()">סנכרן</button>
                 </div>
-                <div id="matches-container" class="scrollable"></div>
+                <div id="matches-container" class="scroll-list">
+                    <p class="muted">סורק שרתים...</p>
+                </div>
             </section>
 
             <section class="analysis-panel glass">
-                <div id="placeholder-ui" class="placeholder">
+                <div id="placeholder-text" class="placeholder">
                     <div class="pulse-icon">📊</div>
-                    <h3>ממתין לבחירת אירוע</h3>
-                    <p>בחר משחק כדי להפעיל את מנועי הניתוח המורכבים</p>
+                    <h3>מערכת ניתוח AI</h3>
+                    <p>בחר משחק מהרשימה להפעלת מנוע ה-Value Bet</p>
                 </div>
 
-                <div id="main-analysis" style="display:none;">
-                    <div class="analysis-grid">
-                        <div class="chart-container">
+                <div id="analysis-content" style="display:none;">
+                    <div class="analysis-header">
+                        <h2 id="selected-match-title">משחק נבחר</h2>
+                        <div class="analysis-nav">
+                            <button onclick="ui.switchTab('overview')" class="tab-btn active">סקירה</button>
+                            <button onclick="ui.switchTab('odds')" class="tab-btn">מחשבון יחסים</button>
+                            <button onclick="ui.switchTab('roster')" class="tab-btn">פצועים/נבדלים</button>
+                        </div>
+                    </div>
+
+                    <div id="tab-overview" class="tab-content">
+                        <div class="main-stats-grid" id="stats-grid"></div>
+                        <div class="chart-wrapper">
+                            <h4>מדד לחץ ומומנטום</h4>
                             <canvas id="momentumChart"></canvas>
                         </div>
-                        
-                        <div class="ai-card">
-                            <h3>הסתברות לתוצאה (AI)</h3>
-                            <div class="prob-display">
-                                <canvas id="probChart"></canvas>
-                                <div class="prob-summary" id="prob-summary"></div>
-                            </div>
-                            <button onclick="app.sendToTelegram()" class="tg-send-btn">שלח דוח לטלגרם 📱</button>
-                        </div>
+                    </div>
 
-                        <div class="data-table">
-                            <h3>נתוני עומק (Live Stats)</h3>
-                            <div id="deep-stats-grid"></div>
+                    <div id="tab-odds" class="tab-content" style="display:none;">
+                        <div class="odds-container">
+                            <div class="odds-grid" id="odds-display"></div>
+                            <div class="ai-verdict-box">
+                                <strong>💡 המלצת מערכת:</strong>
+                                <p id="ai-verdict-text">מחשב סיכויים...</p>
+                            </div>
+                            <button onclick="app.sendToTelegram()" class="tg-full-btn">שלח ניתוח מלא לטלגרם 📱</button>
+                        </div>
+                    </div>
+
+                    <div id="tab-roster" class="tab-content" style="display:none;">
+                        <div class="roster-grid">
+                            <div class="roster-col">
+                                <h5>חיסורים ופציעות</h5>
+                                <div id="missing-list"></div>
+                            </div>
+                            <div class="roster-col">
+                                <h5>נתוני משמעת/נבדלים</h5>
+                                <div id="extra-data-list"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -77,7 +98,6 @@
         </div>
     </main>
 </div>
-
 <script src="app.js"></script>
 </body>
 </html>
