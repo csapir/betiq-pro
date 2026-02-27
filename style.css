@@ -47,3 +47,15 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
 .stat-box span { font-size: 1.2rem; font-weight: bold; color: var(--accent); }
 
 .tg-send-btn { width: 100%; background: #0088cc; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+.analysis-nav { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #1e293b; padding-bottom: 10px; }
+.tab-btn { background: none; border: none; color: #64748b; cursor: pointer; font-weight: bold; padding: 5px 15px; }
+.tab-btn.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
+
+.main-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; }
+.stat-card { background: #0f172a; padding: 15px; border-radius: 12px; border-right: 3px solid var(--accent); }
+.stat-card label { display: block; font-size: 0.7rem; color: #94a3b8; }
+.stat-card strong { font-size: 1.1rem; }
+
+.h2h-row { display: flex; justify-content: space-between; padding: 10px; background: #161b26; margin-bottom: 5px; border-radius: 8px; }
+.lineup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.momentum-wrapper { background: #080a0f; padding: 20px; border-radius: 15px; height: 250px; }
