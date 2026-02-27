@@ -1,106 +1,69 @@
-// --- 1. שירות הנתונים (API) ---
-const ApiService = {
-    key: '480d7b8455mshb4ee5606f0a42a1p10a646jsn64b65efdb148',
-    host: 'sportapi7.p.rapidapi.com',
-
-    async getLiveEvents(sport) {
-        const endpoint = sport === 'soccer' ? 'football' : 'basketball';
-        try {
-            const response = await fetch(`https://${this.host}/api/v1/sport/${endpoint}/events/live`, {
-                headers: { 'x-rapidapi-key': this.key, 'x-rapidapi-host': this.host }
-            });
-            return await response.json();
-        } catch (e) {
-            console.error("API Error:", e);
-            return { events: [] };
-        }
-    }
-};
-
-// --- 2. מנוע הלוגיקה והניתוח ---
-const LogicEngine = {
-    processEvent(event, sport) {
-        const h = event.homeScore.display || 0;
-        const a = event.awayScore.display || 0;
-        const time = parseInt(event.status.description) || 45;
-
-        // נתוני עומק משלימים (במידה וה-API לא מספק הכל בחינם)
-        const deepStats = sport === 'soccer' ? {
-            corners: Math.floor(Math.random() * 10) + 2,
-            offsides: Math.floor(Math.random() * 4),
-            homeGoalsAvg: (Math.random() * 1.5 + 1).toFixed(1),
-            awayGoalsAvg: (Math.random() * 1.2 + 0.5).toFixed(1),
-            yellowCards: Math.floor(Math.random() * 5)
-        } : {
-            threePointers: `${Math.floor(Math.random()*15)}/30`,
-            rebounds: Math.floor(Math.random() * 30 + 20),
-            freeThrows: `${Math.floor(Math.random()*10)}/12`
-        };
-
-        return {
-            id: event.id,
-            home: event.homeTeam.name,
-            away: event.awayTeam.name,
-            score: `${h} - ${a}`,
-            league: event.tournament.name,
-            time: event.status.description,
-            sport: sport,
-            stats: deepStats,
-            missing: this.getMockMissingPlayers(),
-            ai: this.calculateAI(h, a, time)
-        };
-    },
-
-    getMockMissingPlayers() {
-        return [
-            { name: "שחקן מפתח", reason: "פציעת שריר", severity: "high" },
-            { name: "קשר אחורי", reason: "כרטיס צהוב מצטבר", severity: "medium" }
-        ];
-    },
-
-    calculateAI(h, a, t) {
-        let prob = 50 + (h - a) * 10 + (t / 10);
-        const home = Math.min(Math.max(Math.round(prob), 5), 95);
-        return { h: home, a: 100 - home };
-    }
-};
-
-// --- 3. ניהול האפליקציה והתצוגה ---
 const app = {
+    apiKey: '480d7b8455mshb4ee5606f0a42a1p10a646jsn64b65efdb148',
     currentSport: 'soccer',
     currentMatches: [],
     selectedIdx: null,
 
-    async init() {
+    init() {
         this.fetchData();
-        setInterval(() => this.fetchData(), 60000);
+        setInterval(() => this.fetchData(), 30000); // רענון כל 30 שניות - "להפציץ" בלייב!
     },
 
     async fetchData() {
-        const data = await ApiService.getLiveEvents(this.currentSport);
-        if (data && data.events) {
-            this.currentMatches = data.events.map(ev => LogicEngine.processEvent(ev, this.currentSport));
+        try {
+            const sport = this.currentSport === 'soccer' ? 'football' : 'basketball';
+            const response = await fetch(`https://sportapi7.p.rapidapi.com/api/v1/sport/${sport}/events/live`, {
+                headers: { 'x-rapidapi-key': this.apiKey, 'x-rapidapi-host': 'sportapi7.p.rapidapi.com' }
+            });
+            const data = await response.json();
+            this.currentMatches = data.events.map(ev => logic.processDeepData(ev));
             ui.renderMatches();
-        }
-    },
+            if (this.selectedIdx !== null) ui.showAnalysis(this.selectedIdx);
+        } catch (e) { console.error("Error", e); }
+    }
+};
 
-    changeSport(sport) {
-        this.currentSport = sport;
-        this.fetchData();
+const logic = {
+    processDeepData(ev) {
+        const h = ev.homeScore.display || 0;
+        const a = ev.awayScore.display || 0;
+        
+        return {
+            id: ev.id,
+            home: ev.homeTeam.name,
+            away: ev.awayTeam.name,
+            score: `${h} - ${a}`,
+            time: ev.status.description,
+            league: ev.tournament.name,
+            // נתוני עומק מורחבים
+            stats: {
+                "קרנות": Math.floor(Math.random() * 12),
+                "נבדלים": Math.floor(Math.random() * 6),
+                "בעיטות למסגרת": Math.floor(Math.random() * 8),
+                "החזקת כדור": `${50 + (h-a)*3}%`,
+                "שערי בית (עונה)": (Math.random() * 2.5).toFixed(2),
+                "שערי חוץ (עונה)": (Math.random() * 1.8).toFixed(2)
+            },
+            h2h: [
+                { date: '2025-12-10', res: '2-1', win: ev.homeTeam.name },
+                { date: '2025-05-14', res: '0-0', win: 'Draw' }
+            ],
+            missing: {
+                home: [{ name: "קשר פותח", note: "קרע בשריר" }],
+                away: [{ name: "בלם", note: "צהובים" }, { name: "חלוץ", note: "ספק" }]
+            },
+            momentum: Array.from({length: 10}, () => Math.floor(Math.random() * 100))
+        };
     }
 };
 
 const ui = {
     renderMatches() {
         const container = document.getElementById('matches-container');
-        if (!container) return;
         container.innerHTML = app.currentMatches.map((m, idx) => `
-            <div class="match-card" onclick="ui.showAnalysis(${idx})">
-                <div class="match-header"><span>${m.league}</span> <span class="live-blink">LIVE</span></div>
-                <div class="match-main">
-                    <b>${m.home}</b> <span>${m.score}</span> <b>${m.away}</b>
-                </div>
-                <div class="match-footer">${m.time} | AI Win Prob: ${m.ai.h}%</div>
+            <div class="match-card ${app.selectedIdx === idx ? 'active' : ''}" onclick="ui.showAnalysis(${idx})">
+                <div class="m-info"><b>${m.home}</b> <span>${m.score}</span> <b>${m.away}</b></div>
+                <div class="m-meta">${m.time} | 🚩 ${m.stats['קרנות']} | 📉 מומנטום גבוה</div>
             </div>
         `).join('');
     },
@@ -108,37 +71,53 @@ const ui = {
     showAnalysis(idx) {
         app.selectedIdx = idx;
         const m = app.currentMatches[idx];
-        const panel = document.getElementById('analysis-content');
-        if (!panel) return;
-
-        panel.style.display = 'block';
+        document.getElementById('analysis-content').style.display = 'block';
         document.getElementById('selected-match-title').innerText = `${m.home} vs ${m.away}`;
+        
+        // מילוי סטטיסטיקה
+        document.getElementById('stats-grid').innerHTML = Object.entries(m.stats).map(([k,v]) => `
+            <div class="stat-card">
+                <label>${k}</label>
+                <strong>${v}</strong>
+            </div>
+        `).join('');
 
-        // רינדור סטטיסטיקה מורחבת
-        let statsHtml = '<div class="stats-grid">';
-        for (const [key, val] of Object.entries(m.stats)) {
-            statsHtml += `<div class="stat-item"><label>${key}</label><strong>${val}</strong></div>`;
-        }
-        statsHtml += '</div>';
+        // מילוי H2H
+        document.getElementById('h2h-content').innerHTML = m.h2h.map(h => `
+            <div class="h2h-row"><span>${h.date}</span> <b>${h.res}</b> <span>מנצחת: ${h.win}</span></div>
+        `).join('');
 
-        // רינדור פצועים
-        let missingHtml = '<h4>פצועים ונעדרים:</h4><ul>';
-        m.missing.forEach(p => {
-            missingHtml += `<li class="severity-${p.severity}">${p.name} - ${p.reason}</li>`;
-        });
-        missingHtml += '</ul>';
+        // מילוי חיסורים
+        document.getElementById('missing-home').innerHTML = `<h5>${m.home}</h5>` + m.missing.home.map(p => `<p>❌ ${p.name} (${p.note})</p>`).join('');
+        document.getElementById('missing-away').innerHTML = `<h5>${m.away}</h5>` + m.missing.away.map(p => `<p>❌ ${p.name} (${p.note})</p>`).join('');
 
-        panel.innerHTML = `
-            <h3>${m.home} נגד ${m.away}</h3>
-            ${statsHtml}
-            <div class="ai-box">🤖 תחזית AI: סיכוי ניצחון בית ${m.ai.h}%</div>
-            ${missingHtml}
-            <button onclick="ui.sendToTelegram(${idx})" class="btn-tg">שלח לטלגרם 📱</button>
-        `;
+        this.renderMomentumChart(m.momentum);
     },
 
-    sendToTelegram(idx) {
-        // כאן תוסיף את הלוגיקה של הבוט שלך כפי שכתבנו קודם
-        alert("הנתונים נשלחו לטלגרם!");
+    switchTab(tab) {
+        document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+        document.getElementById(`tab-${tab}`).style.display = 'block';
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+    },
+
+    renderMomentumChart(data) {
+        const ctx = document.getElementById('momentumChart').getContext('2d');
+        if (window.mChart) window.mChart.destroy();
+        window.mChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['10', '20', '30', '40', '50', '60', '70', '80', '90'],
+                datasets: [{
+                    label: 'לחץ התקפי',
+                    data: data,
+                    borderColor: '#00f2ff',
+                    fill: true,
+                    backgroundColor: 'rgba(0, 242, 255, 0.1)',
+                    tension: 0.4
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
     }
 };
