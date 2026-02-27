@@ -3,71 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SportIQ Ultra — AI Live Analysis</title>
+    <title>SportIQ Pro - Analysis Suite</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Heebo:wght@100;400;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Heebo:wght@300;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body onload="app.init()">
 
-    <div class="app-container">
-        <aside class="sidebar">
-            <div class="logo-area"><div class="logo">S<span>IQ</span></div></div>
-            <nav class="side-nav">
-                <button onclick="ui.showSection('dashboard')" class="nav-item active">📊</button>
-            </nav>
-        </aside>
+<div class="app-shell">
+    <aside class="sidebar">
+        <div class="logo">S<span>IQ</span></div>
+        <nav>
+            <button onclick="ui.showSection('live')" class="nav-btn active">📡 Live</button>
+            <button onclick="ui.showSection('analysis')" class="nav-btn">📊 Insights</button>
+            <button onclick="ui.showSection('settings')" class="nav-btn">⚙️</button>
+        </nav>
+    </aside>
 
-        <main class="main-content">
-            <header class="top-bar">
-                <div class="search-box"><input type="text" placeholder="חיפוש ליגה או קבוצה..."></div>
-                <div class="user-status">
-                    <span id="api-status" class="api-badge">CONNECTING...</span>
-                </div>
-            </header>
+    <main class="content-area">
+        <header class="main-header">
+            <div class="header-info">
+                <h1>מרכז פיקוד <span>אנליטי</span></h1>
+                <p id="live-timer">סינכרון נתונים פעיל: 60s</p>
+            </div>
+            <div class="global-stats">
+                <div class="g-stat"><span>דיוק AI:</span> <strong>84%</strong></div>
+                <div class="g-stat"><span>מצב שרת:</span> <strong style="color:var(--accent)">ONLINE</strong></div>
+            </div>
+        </header>
 
-            <section id="dashboard" class="content-page active">
-                <div class="welcome-header">
-                    <h1>ניתוח נתונים <span>בזמן אמת</span></h1>
-                    <div class="filter-pills">
-                        <button id="btn-soccer" onclick="logic.changeSport('soccer')" class="pill active">⚽ כדורגל</button>
-                        <button id="btn-basketball" onclick="logic.changeSport('basketball')" class="pill">🏀 כדורסל</button>
+        <div class="alerts-ticker" id="alerts-ticker">מחשב מומנטום למשחקים פעילים...</div>
+
+        <div class="dashboard-layout">
+            <section class="matches-panel">
+                <div class="panel-header">
+                    <div class="tabs">
+                        <button onclick="logic.changeSport('soccer')" id="btn-soccer" class="tab-btn active">כדורגל</button>
+                        <button onclick="logic.changeSport('basketball')" id="btn-basketball" class="tab-btn">כדורסל</button>
                     </div>
                 </div>
+                <div id="matches-container" class="scrollable"></div>
+            </section>
 
-                <div class="dashboard-grid">
-                    <div class="list-panel">
-                        <div class="panel-head">
-                            <h3 id="list-title">משחקים חיים כרגע</h3>
-                            <button class="sync-btn" onclick="app.fetchData()">SYNC</button>
-                        </div>
-                        <div id="matches-container" class="scroll-list">
-                            <p class="muted">ממתין לסנכרון נתונים...</p>
-                        </div>
-                    </div>
+            <section class="analysis-panel glass">
+                <div id="placeholder-ui" class="placeholder">
+                    <div class="pulse-icon">📊</div>
+                    <h3>ממתין לבחירת אירוע</h3>
+                    <p>בחר משחק כדי להפעיל את מנועי הניתוח המורכבים</p>
+                </div>
 
-                    <div class="analysis-panel">
-                        <div id="analysis-content" class="glass-card" style="display:none;">
-                            <div class="card-header">
-                                <h2 id="selected-match-title">בחר משחק</h2>
-                            </div>
-                            <div class="stats-viz">
-                                <div class="chart-wrapper">
-                                    <canvas id="matchChart"></canvas>
-                                    <div id="chart-center-label">AI</div>
-                                </div>
-                                <div class="stats-summary" id="micro-stats-content"></div>
-                            </div>
+                <div id="main-analysis" style="display:none;">
+                    <div class="analysis-grid">
+                        <div class="chart-container">
+                            <canvas id="momentumChart"></canvas>
                         </div>
-                        <div id="placeholder-text" class="empty-state">
-                            <div class="icon">🤖</div>
-                            <p>מנוע ה-AI מוכן. בחר משחק מהרשימה כדי להתחיל בניתוח סיכויים.</p>
+                        
+                        <div class="ai-card">
+                            <h3>הסתברות לתוצאה (AI)</h3>
+                            <div class="prob-display">
+                                <canvas id="probChart"></canvas>
+                                <div class="prob-summary" id="prob-summary"></div>
+                            </div>
+                            <button onclick="app.sendToTelegram()" class="tg-send-btn">שלח דוח לטלגרם 📱</button>
+                        </div>
+
+                        <div class="data-table">
+                            <h3>נתוני עומק (Live Stats)</h3>
+                            <div id="deep-stats-grid"></div>
                         </div>
                     </div>
                 </div>
             </section>
-        </main>
-    </div>
-    <script src="app.js"></script>
+        </div>
+    </main>
+</div>
+
+<script src="app.js"></script>
 </body>
 </html>
