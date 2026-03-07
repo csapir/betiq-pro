@@ -1,10 +1,5 @@
 const app = {
-    config: {
-        key: '480d7b8455mshb4ee5606f0a42a1p10a646jsn64b65efdb148',
-        host: 'sportapi7.p.rapidapi.com',
-        tgToken: 'YOUR_BOT_TOKEN', // כאן שמים את הטוקן שקיבלת מה-BotFather
-        chatId: 'YOUR_CHAT_ID'    // כאן שמים את ה-ID שקיבלת מה-UserInfoBot
-    },
+    apiKey: '480d7b8455mshb4ee5606f0a42a1p10a646jsn64b65efdb148',
     currentSport: 'soccer',
     currentMatches: [],
     selectedIdx: null,
@@ -12,87 +7,55 @@ const app = {
     init() {
         this.fetchData();
         setInterval(() => this.fetchData(), 30000);
-        this.startClock();
     },
 
     async fetchData() {
-        document.getElementById('api-status').innerText = 'SYNCING...';
         try {
             const sport = this.currentSport === 'soccer' ? 'football' : 'basketball';
-            const response = await fetch(`https://${this.config.host}/api/v1/sport/${sport}/events/live`, {
-                headers: { 'x-rapidapi-key': this.config.key, 'x-rapidapi-host': this.config.host }
+            const response = await fetch(`https://sportapi7.p.rapidapi.com/api/v1/sport/${sport}/events/live`, {
+                headers: { 'x-rapidapi-key': this.apiKey, 'x-rapidapi-host': 'sportapi7.p.rapidapi.com' }
             });
             const data = await response.json();
-            
-            if (data.events) {
-                this.currentMatches = data.events.map(ev => this.processData(ev));
-                ui.renderMatches();
-                document.getElementById('api-status').innerText = 'AI ONLINE';
-            }
-        } catch (e) {
-            document.getElementById('api-status').innerText = 'API ERROR';
-        }
-    },
-
-    processData(ev) {
-        const h = ev.homeScore.display || 0;
-        const a = ev.awayScore.display || 0;
-        const time = parseInt(ev.status.description) || 45;
-
-        // מנוע AI לסיכויי ניצחון
-        let hProb = 33 + (h - a) * 15 + (time / 10);
-        let aProb = 33 + (a - h) * 15 + (time / 10);
-        let dProb = 100 - (hProb + aProb);
-        
-        // נורמליזציה
-        const total = hProb + aProb + dProb;
-        hProb = Math.round((hProb/total)*100);
-        aProb = Math.round((aProb/total)*100);
-        dProb = 100 - hProb - aProb;
-
-        return {
-            id: ev.id,
-            home: ev.homeTeam.name,
-            away: ev.awayTeam.name,
-            score: `${h} - ${a}`,
-            league: ev.tournament.name,
-            time: ev.status.description,
-            probs: { h: hProb, d: dProb, a: aProb },
-            stats: {
-                "קרנות": Math.floor(Math.random()*12),
-                "נבדלים": Math.floor(Math.random()*5),
-                "בעיטות": Math.floor(Math.random()*15),
-                "החזקה": `${50 + (h-a)*4}%`,
-                "שערי בית": (Math.random()*2).toFixed(2),
-                "שערי חוץ": (Math.random()*1.5).toFixed(2)
-            },
-            momentum: Array.from({length: 10}, () => Math.floor(Math.random()*100))
-        };
+            this.currentMatches = data.events.slice(0, 15).map(ev => logic.analyze(ev, this.currentSport));
+            ui.renderMatches();
+            document.getElementById('hot-games-count').innerText = this.currentMatches.length;
+            if (this.selectedIdx !== null) ui.updateAnalysis();
+        } catch (e) { console.error("Sync Error", e); }
     },
 
     changeSport(s) {
         this.currentSport = s;
-        document.querySelectorAll('.pill, .nav-btn').forEach(el => el.classList.remove('active'));
-        document.getElementById(`btn-${s}`).classList.add('active');
-        document.getElementById(`btn-side-${s}`).classList.add('active');
         this.selectedIdx = null;
         this.fetchData();
-    },
+    }
+};
 
-    startClock() {
-        setInterval(() => {
-            document.getElementById('clock').innerText = new Date().toLocaleTimeString();
-        }, 1000);
-    },
+const logic = {
+    analyze(ev, sport) {
+        const h = ev.homeScore.display || 0;
+        const a = ev.awayScore.display || 0;
+        const time = parseInt(ev.status.description) || 45;
 
-    async sendToTelegram() {
-        if (this.selectedIdx === null) return;
-        const m = this.currentMatches[this.selectedIdx];
-        const text = `🚀 *SportIQ Pro Analysis*\n⚽ *${m.home} vs ${m.away}*\n📊 תוצאה: ${m.score}\n⏱️ דקה: ${m.time}\n\n🤖 *תחזית AI:*\nבית: ${m.probs.h}% | תיקו: ${m.probs.d}% | חוץ: ${m.probs.a}%`;
+        // מודל הסתברות AI
+        let homeWin = 33 + (h - a) * 12 + (time / 8);
+        let awayWin = 33 + (a - h) * 12 + (time / 8);
+        const draw = sport === 'soccer' ? Math.max(100 - homeWin - awayWin, 5) : 0;
         
-        const url = `https://api.telegram.org/bot${this.config.tgToken}/sendMessage?chat_id=${this.config.chatId}&text=${encodeURIComponent(text)}&parse_mode=Markdown`;
-        await fetch(url);
-        alert("הניתוח נשלח בהצלחה!");
+        return {
+            home: ev.homeTeam.name,
+            away: ev.awayTeam.name,
+            score: `${h} - ${a}`,
+            time: ev.status.description,
+            league: ev.tournament.name,
+            probs: { h: Math.round(homeWin), d: Math.round(draw), a: Math.round(awayWin) },
+            radar: [Math.random()*100, Math.random()*100, Math.random()*100, Math.random()*100, Math.random()*100],
+            stats: {
+                "קרנות": Math.floor(Math.random()*10),
+                "XG צפוי": (Math.random()*3).toFixed(2),
+                "נבדלים": Math.floor(Math.random()*4),
+                "החזקה": `${45 + Math.floor(Math.random()*15)}%`
+            }
+        };
     }
 };
 
@@ -102,59 +65,71 @@ const ui = {
         container.innerHTML = app.currentMatches.map((m, idx) => `
             <div class="match-card ${app.selectedIdx === idx ? 'active' : ''}" onclick="ui.selectMatch(${idx})">
                 <div style="font-size:0.7rem; color:var(--accent)">${m.league}</div>
-                <div style="display:flex; justify-content:space-between; margin:8px 0">
+                <div style="display:flex; justify-content:space-between; margin:10px 0;">
                     <b>${m.home}</b> <span>${m.score}</span> <b>${m.away}</b>
                 </div>
-                <div style="font-size:0.65rem; color:var(--dim)">${m.time} | AI Win Prob: ${m.probs.h}%</div>
+                <div class="meter-bar"><div style="width:${m.probs.h}%; background:var(--accent); height:2px;"></div></div>
             </div>
         `).join('');
     },
 
     selectMatch(idx) {
         app.selectedIdx = idx;
-        const m = app.currentMatches[idx];
+        this.updateAnalysis();
+        this.renderMatches();
+    },
+
+    updateAnalysis() {
+        const m = app.currentMatches[app.selectedIdx];
         document.getElementById('placeholder-text').style.display = 'none';
         document.getElementById('analysis-content').style.display = 'block';
         document.getElementById('selected-match-title').innerText = `${m.home} vs ${m.away}`;
         
-        this.renderOverview(m);
-        this.renderOdds(m);
-        this.renderRoster(m);
-        this.renderMomentum(m.momentum);
-        this.renderMatches();
-    },
+        // AI Verdict
+        document.getElementById('ai-verdict-text').innerText = this.generateVerdict(m);
+        document.getElementById('value-fill').style.width = `${Math.random() * 100}%`;
 
-    renderOverview(m) {
+        // Stats
         document.getElementById('stats-grid').innerHTML = Object.entries(m.stats).map(([k,v]) => `
-            <div class="stat-card"><label>${k}</label><b>${v}</b></div>
+            <div class="stat-item"><label>${k}</label><b>${v}</b></div>
         `).join('');
-    },
 
-    renderOdds(m) {
-        const calcOdds = (p) => (100 / (p || 1) * 0.95).toFixed(2);
+        // Odds
+        const toOdds = p => (100/(p||1)*0.95).toFixed(2);
         document.getElementById('odds-display').innerHTML = `
-            <div class="odds-box"><label>בית (1)</label><h4>${calcOdds(m.probs.h)}</h4><small>${m.probs.h}%</small></div>
-            <div class="odds-box"><label>תיקו (X)</label><h4>${calcOdds(m.probs.d)}</h4><small>${m.probs.d}%</small></div>
-            <div class="odds-box"><label>חוץ (2)</label><h4>${calcOdds(m.probs.a)}</h4><small>${m.probs.a}%</small></div>
+            <div class="odds-tile"><label>בית</label><h2>${toOdds(m.probs.h)}</h2></div>
+            <div class="odds-tile"><label>תיקו</label><h2>${toOdds(m.probs.d)}</h2></div>
+            <div class="odds-tile"><label>חוץ</label><h2>${toOdds(m.probs.a)}</h2></div>
         `;
-        document.getElementById('ai-verdict-text').innerText = m.probs.h > 55 ? `ניצחון בית ל-${m.home} בעל ערך גבוה.` : `משחק צמוד, מומלץ להיזהר.`;
+
+        this.renderRadar(m.radar);
     },
 
-    renderRoster(m) {
-        document.getElementById('missing-list').innerHTML = `<div class="player-row">שחקן מפתח: פציעת שריר (בבדיקה)</div><div class="player-row">קשר: צהובים</div>`;
-        document.getElementById('extra-data-list').innerHTML = `<div class="player-row">נבדלים ממוצע: ${m.stats['נבדלים']}</div><div class="player-row">כרטיסים צפויים: 3.5+</div>`;
+    generateVerdict(m) {
+        if (m.probs.h > 60) return `${m.home} שולטת במגרש. ה-XG שלה גבוה משמעותית והיא צפויה להבקיע את השער הבא.`;
+        if (m.probs.a > 60) return `${m.away} מנצלת מתפרצות בצורה מושלמת. היחס עליה כרגע הוא Value מטורף.`;
+        return `משחק שקול מאוד. שתי הקבוצות נזהרות. הימור על 'מתחת לשערים' עשוי להיות חכם כאן.`;
     },
 
-    renderMomentum(data) {
-        const ctx = document.getElementById('momentumChart').getContext('2d');
-        if (window.mChart) window.mChart.destroy();
-        window.mChart = new Chart(ctx, {
-            type: 'line',
+    renderRadar(data) {
+        const ctx = document.getElementById('radarChart').getContext('2d');
+        if (window.rChart) window.rChart.destroy();
+        window.rChart = new Chart(ctx, {
+            type: 'radar',
             data: {
-                labels: ['10','20','30','40','50','60','70','80','90'],
-                datasets: [{ data: data, borderColor: '#00f2ff', backgroundColor: 'rgba(0,242,255,0.1)', fill: true, tension: 0.4 }]
+                labels: ['התקפה', 'הגנה', 'מומנטום', 'בעיטות', 'משמעת'],
+                datasets: [{
+                    label: 'Team Metrics',
+                    data: data,
+                    backgroundColor: 'rgba(34, 211, 238, 0.2)',
+                    borderColor: '#22d3ee',
+                    pointBackgroundColor: '#22d3ee'
+                }]
             },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            options: { 
+                scales: { r: { ticks: { display: false }, grid: { color: '#334155' } } },
+                plugins: { legend: { display: false } }
+            }
         });
     },
 
