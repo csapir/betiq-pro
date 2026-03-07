@@ -1,45 +1,74 @@
-const LogicEngine = {
-    processSoccer(event) {
-        const h = event.homeScore.display || 0;
-        const a = event.awayScore.display || 0;
-        
+const logic = {
+    analyze(ev) {
+        const fixture = ev.fixture;
+        const teams = ev.teams;
+        const goals = ev.goals;
+        const score = ev.score;
+
+        const h = goals.home ?? 0;
+        const a = goals.away ?? 0;
+
+        // הסתברות בסיסית (תוכל לשפר עם ML מאוחר יותר)
+        let homeProb = 45 + (h - a) * 8 + (fixture.status.elapsed || 0) / 5;
+        let awayProb = 45 + (a - h) * 8 + (fixture.status.elapsed || 0) / 5;
+        const drawProb = Math.max(100 - homeProb - awayProb, 10);
+
         return {
-            basic: { home: event.homeTeam.name, away: event.awayTeam.name, score: `${h}-${a}` },
-            deep: {
-                corners: Math.floor(Math.random() * 11), // קרנות
-                offsides: Math.floor(Math.random() * 5), // נבדלים
-                homeGoalsAvg: (Math.random() * 2 + 1).toFixed(1), // ממוצע שערי בית
-                awayGoalsAvg: (Math.random() * 1.5 + 0.5).toFixed(1), // ממוצע שערי חוץ
-                missing: this.generateMissingPlayers() // פצועים ונעדרים
-            },
-            ai: this.runAI(h, a, 1)
+            id: fixture.id,
+            home: { name: teams.home.name, id: teams.home.id, logo: teams.home.logo },
+            away: { name: teams.away.name, id: teams.away.id, logo: teams.away.logo },
+            score: `${h} - ${a}`,
+            time: fixture.status.long || fixture.status.short,
+            elapsed: fixture.status.elapsed || 0,
+            league: ev.league.name,
+            probs: { h: Math.round(homeProb), d: Math.round(drawProb), a: Math.round(awayProb) },
+            stats: {}  // ימולא ב-updateAnalysis
         };
     },
 
-    processBasketball(event) {
-        return {
-            basic: { home: event.homeTeam.name, away: event.awayTeam.name, score: `${event.homeScore.display}-${event.awayScore.display}` },
-            deep: {
-                threePointers: `${Math.floor(Math.random()*15)}/${Math.floor(Math.random()*30)}`,
-                rebounds: Math.floor(Math.random() * 40 + 20),
-                timeouts: Math.floor(Math.random() * 5),
-                missing: this.generateMissingPlayers()
-            },
-            ai: this.runAI(event.homeScore.display, event.awayScore.display, 2)
-        };
-    },
+    async fetchDeepData(fixtureId, homeId, awayId) {
+        try {
+            // Statistics (קרנות, נבדלים, possession...)
+            const statsRes = await fetch(`https://v3.football.api-sports.io/fixtures/statistics?fixture=${fixtureId}`, {
+                headers: { 'x-apisports-key': app.apiKey }
+            });
+            const statsData = await statsRes.json();
 
-    generateMissingPlayers() {
-        const list = ["פצוע ברך", "כרטיס אדום", "מנוחה", "פציעת קרסול"];
-        return [
-            { name: "שחקן מפתח א'", status: list[Math.floor(Math.random()*4)], type: 'injury' },
-            { name: "קשר אחורי ב'", status: "ספק למשחק", type: 'warning' }
-        ];
-    },
+            let homeStats = statsData.response?.[0] || {};
+            let awayStats = statsData.response?.[1] || {};
 
-    runAI(h, a, type) {
-        // לוגיקה לניבוי תוצאה סופית
-        let prob = 50 + (h - a) * 10;
-        return { homeProb: Math.min(Math.max(prob, 5), 95), awayProb: 100 - Math.min(Math.max(prob, 5), 95) };
+            // Injuries / sidelined
+            const injHome = await fetch(`https://v3.football.api-sports.io/injuries?team=${homeId}&season=2025`, {
+                headers: { 'x-apisports-key': app.apiKey }
+            }).then(r => r.json()).catch(() => ({response: []}));
+
+            const injAway = await fetch(`https://v3.football.api-sports.io/injuries?team=${awayId}&season=2025`, {
+                headers: { 'x-apisports-key': app.apiKey }
+            }).then(r => r.json()).catch(() => ({response: []}));
+
+            // Form / streaks
+            const formHome = await fetch(`https://v3.football.api-sports.io/teams/statistics?team=${homeId}&league=${ev.league.id || 39}&season=2025`, {
+                headers: { 'x-apisports-key': app.apiKey }
+            }).then(r => r.json()).catch(() => ({response: {form: 'לא זמין'}}));
+
+            const formAway = await fetch(`https://v3.football.api-sports.io/teams/statistics?team=${awayId}&league=${ev.league.id || 39}&season=2025`, {
+                headers: { 'x-apisports-key': app.apiKey }
+            }).then(r => r.json()).catch(() => ({response: {form: 'לא זמין'}}));
+
+            return {
+                cornersHome: homeStats.statistics?.find(s => s.type === 'Corner Kicks')?.value || 0,
+                cornersAway: awayStats.statistics?.find(s => s.type === 'Corner Kicks')?.value || 0,
+                offsidesHome: homeStats.statistics?.find(s => s.type === 'Offsides')?.value || 0,
+                possessionHome: homeStats.statistics?.find(s => s.type === 'Ball Possession')?.value || '0%',
+                shotsHome: homeStats.statistics?.find(s => s.type === 'Total Shots')?.value || 0,
+                missingHome: injHome.response.map(p => ({name: p.player?.name, status: p.status || 'פצוע'})),
+                missingAway: injAway.response.map(p => ({name: p.player?.name, status: p.status || 'פצוע'})),
+                streakHome: formHome.response?.form || 'לא זמין',
+                streakAway: formAway.response?.form || 'לא זמין'
+            };
+        } catch (e) {
+            console.error('Deep fetch error:', e);
+            return { error: true };
+        }
     }
 };
